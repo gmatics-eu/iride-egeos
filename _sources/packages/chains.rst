@@ -1,7 +1,7 @@
-package\_name package
-=====================
+chains package
+==============
 
-.. automodule:: package_name
+.. automodule:: chains
    :members:
    :undoc-members:
    :show-inheritance:
@@ -12,4 +12,5 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
-   package_name.module
+   chains.foresthealth
+   chains.module

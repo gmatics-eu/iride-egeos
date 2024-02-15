@@ -8,7 +8,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>package_name.module module &#8212; package-name 0.1.dev0 documentation</title>
+    <title>chains package &#8212; chains 1.0.dev0 documentation</title>
   
   
   
@@ -46,11 +46,11 @@
     <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
     <script src="../_static/js/rtd_search_config.js"></script>
     <script src="../_static/js/rtd_sphinx_search.min.js"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'packages/package_name.module';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'packages/chains';</script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Changelog" href="../changelog.html" />
-    <link rel="prev" title="package_name package" href="package_name.html" />
+    <link rel="next" title="chains.foresthealth module" href="chains.foresthealth.html" />
+    <link rel="prev" title="API Reference" href="modules.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -133,7 +133,7 @@
   
   
   
-    <p class="title logo__title">package-name 0.1.dev0 documentation</p>
+    <p class="title logo__title">chains 1.0.dev0 documentation</p>
   
 </a></div>
         <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
@@ -141,8 +141,9 @@
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents:</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="modules.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-1"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l2 current active has-children"><a class="reference internal" href="package_name.html">package_name package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul class="current">
-<li class="toctree-l3 current active"><a class="current reference internal" href="#">package_name.module module</a></li>
+<li class="toctree-l2 current active has-children"><a class="current reference internal" href="#">chains package</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" type="checkbox"/><label class="toctree-toggle" for="toctree-checkbox-2"><i class="fa-solid fa-chevron-down"></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="chains.foresthealth.html">chains.foresthealth module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="chains.module.html">chains.module module</a></li>
 </ul>
 </li>
 </ul>
@@ -204,7 +205,7 @@
       
       
       
-      <li><a href="../_sources/packages/package_name.module.rst" target="_blank"
+      <li><a href="../_sources/packages/chains.rst" target="_blank"
    class="btn btn-sm btn-download-source-button dropdown-item"
    title="Download source file"
    data-bs-placement="left" data-bs-toggle="tooltip"
@@ -288,7 +289,7 @@ document.write(`
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>package_name.module module</h1>
+    <h1>chains package</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -298,7 +299,7 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package_name.module.cubic_rectification"><code class="docutils literal notranslate"><span class="pre">cubic_rectification()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
 </ul>
             </nav>
         </div>
@@ -310,38 +311,17 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <div class="section" id="module-package_name.module">
-<span id="package-name-module-module"></span><h1>package_name.module module<a class="headerlink" href="#module-package_name.module" title="Permalink to this heading">#</a></h1>
-<p>Module provides a simple cubic_rectification function.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="package_name.module.cubic_rectification">
-<span class="sig-prename descclassname"><span class="pre">package_name.module.</span></span><span class="sig-name descname"><span class="pre">cubic_rectification</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/package_name/module.html#cubic_rectification"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#package_name.module.cubic_rectification" title="Permalink to this definition">#</a></dt>
-<dd><p>Rectified cube of an array.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>x</strong> (<a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><em>numpy.ndarray</em></a>) – Input array.</p></li>
-<li><p><strong>verbose</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.12)"><em>bool</em></a><em>, </em><em>optional</em>) – Whether to print out details. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+  <div class="section" id="module-chains">
+<span id="chains-package"></span><h1>chains package<a class="headerlink" href="#module-chains" title="Permalink to this heading">#</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this heading">#</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="chains.foresthealth.html">chains.foresthealth module</a></li>
+<li class="toctree-l1"><a class="reference internal" href="chains.module.html">chains.module module</a></li>
 </ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p>Elementwise, the cube of <cite>x</cite> where it is positive and <code class="docutils literal notranslate"><span class="pre">0</span></code> otherwise.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)">numpy.ndarray</a></p>
-</dd>
-</dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is a sample function, using a numpy docstring format.</p>
 </div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The use of intersphinx will cause <a class="reference external" href="https://numpy.org/doc/stable/reference/generated/numpy.ndarray.html#numpy.ndarray" title="(in NumPy v1.26)"><code class="xref py py-class docutils literal notranslate"><span class="pre">numpy.ndarray</span></code></a> to link to
-the numpy documentation page.</p>
 </div>
-</dd></dl>
-
 </div>
 
 
@@ -356,20 +336,20 @@ the numpy documentation page.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="package_name.html"
+       href="modules.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">package_name package</p>
+        <p class="prev-next-title">API Reference</p>
       </div>
     </a>
     <a class="right-next"
-       href="../changelog.html"
+       href="chains.foresthealth.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Changelog</p>
+        <p class="prev-next-title">chains.foresthealth module</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -388,7 +368,7 @@ the numpy documentation page.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#package_name.module.cubic_rectification"><code class="docutils literal notranslate"><span class="pre">cubic_rectification()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
 </ul>
   </nav></div>
 
@@ -403,7 +383,7 @@ the numpy documentation page.</p>
   <div class="footer-item">
     
 <p class="component-author">
-By Author Name
+By GMATICS srl
 </p>
 
   </div>
@@ -413,7 +393,7 @@ By Author Name
 
   <p class="copyright">
     
-      © Copyright 2024, Author Name.
+      © Copyright 2024, GMATICS srl.
       <br/>
     
   </p>
