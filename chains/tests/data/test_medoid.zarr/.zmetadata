@@ -1,0 +1,384 @@
+{
+    "metadata": {
+        ".zattrs": {
+            "center_wavelength": "[0.49 0.56 0.665 0.704 0.74 0.783 0.842 0.865 1.61 2.19 None]",
+            "common_name": "['blue' 'green' 'red' 'rededge' 'rededge' 'rededge' 'nir' 'rededge'\n 'swir16' 'swir22' None]",
+            "constellation": "Sentinel 2",
+            "crs": "epsg:32633",
+            "eo:cloud_cover": "[10.409597 32.043052 63.112731 12.419995 19.201538 58.264982]",
+            "epsg": "32633",
+            "full_width_half_max": "[0.098 0.045 0.038 0.019 0.018 0.028 0.145 0.033 0.143 0.242 None]",
+            "gsd": "[10. 10. 10. 20. 20. 20. 10. 20. 20. 20. 20.]",
+            "id": "['S2A_MSIL2A_20200525T100031_R122_T33TTG_20200910T215435'\n 'S2B_MSIL2A_20200530T100029_R122_T33TTG_20200911T133112'\n 'S2A_MSIL2A_20200604T100031_R122_T33TTG_20200826T023226'\n 'S2B_MSIL2A_20200609T100029_R122_T33TTG_20200826T185001'\n 'S2A_MSIL2A_20200614T100031_R122_T33TTG_20200827T081726'\n 'S2B_MSIL2A_20200619T100029_R122_T33TTG_20200823T083526']",
+            "instruments": "msi",
+            "platform": "['Sentinel-2A' 'Sentinel-2B' 'Sentinel-2A' 'Sentinel-2B' 'Sentinel-2A'\n 'Sentinel-2B']",
+            "proj:bbox": "{4590240.0, 199980.0, 309780.0, 4700040.0}",
+            "proj:epsg": "32633",
+            "resolution": "10",
+            "s2:cloud_shadow_percentage": "[0.784367 1.111994 0.027813 1.315905 1.053367 0.343944]",
+            "s2:dark_features_percentage": "[0.313994 0.392281 0.082439 0.701169 0.792005 0.193228]",
+            "s2:datastrip_id": "['S2A_OPER_MSI_L2A_DS_ESRI_20200910T215436_S20200525T100503_N02.12'\n 'S2B_OPER_MSI_L2A_DS_ESRI_20200911T133114_S20200530T100502_N02.12'\n 'S2A_OPER_MSI_L2A_DS_ESRI_20200826T023229_S20200604T100905_N02.12'\n 'S2B_OPER_MSI_L2A_DS_ESRI_20200826T185004_S20200609T100615_N02.12'\n 'S2A_OPER_MSI_L2A_DS_ESRI_20200827T081728_S20200614T100243_N02.12'\n 'S2B_OPER_MSI_L2A_DS_ESRI_20200823T083528_S20200619T100854_N02.12']",
+            "s2:datatake_id": "['GS2A_20200525T100031_025716_N02.12' 'GS2B_20200530T100029_016879_N02.12'\n 'GS2A_20200604T100031_025859_N02.12' 'GS2B_20200609T100029_017022_N02.12'\n 'GS2A_20200614T100031_026002_N02.12' 'GS2B_20200619T100029_017165_N02.12']",
+            "s2:datatake_type": "INS-NOBS",
+            "s2:degraded_msi_data_percentage": "0.0",
+            "s2:generation_time": "['2020-09-10T21:54:35.655Z' '2020-09-11T13:31:12.107Z'\n '2020-08-26T02:32:26.944Z' '2020-08-26T18:50:01.574Z'\n '2020-08-27T08:17:26.590Z' '2020-08-23T08:35:26.776Z']",
+            "s2:granule_id": "['S2A_OPER_MSI_L2A_TL_ESRI_20200910T215436_A025716_T33TTG_N02.12'\n 'S2B_OPER_MSI_L2A_TL_ESRI_20200911T133114_A016879_T33TTG_N02.12'\n 'S2A_OPER_MSI_L2A_TL_ESRI_20200826T023229_A025859_T33TTG_N02.12'\n 'S2B_OPER_MSI_L2A_TL_ESRI_20200826T185004_A017022_T33TTG_N02.12'\n 'S2A_OPER_MSI_L2A_TL_ESRI_20200827T081728_A026002_T33TTG_N02.12'\n 'S2B_OPER_MSI_L2A_TL_ESRI_20200823T083528_A017165_T33TTG_N02.12']",
+            "s2:high_proba_clouds_percentage": "[ 2.787781 24.197268 32.940415  5.505609 14.44447   6.735336]",
+            "s2:mean_solar_azimuth": "[144.42898589 143.14739235 142.00125089 140.88437752 139.98712359\n 139.22322435]",
+            "s2:mean_solar_zenith": "[24.32636335 23.69917644 23.22087375 22.92478747 22.77495748 22.79653068]",
+            "s2:medium_proba_clouds_percentage": "[ 0.672831  4.636843 15.724258  2.242717  3.496306 31.577986]",
+            "s2:mgrs_tile": "33TTG",
+            "s2:nodata_pixel_percentage": "[0.       0.       1.368748 0.       0.       0.      ]",
+            "s2:not_vegetated_percentage": "[12.555695  5.215822  6.874645 16.070478 11.955604  8.86237 ]",
+            "s2:processing_baseline": "02.12",
+            "s2:product_type": "S2MSI2A",
+            "s2:product_uri": "['S2A_MSIL2A_20200525T100031_N0212_R122_T33TTG_20200910T215435.SAFE'\n 'S2B_MSIL2A_20200530T100029_N0212_R122_T33TTG_20200911T133112.SAFE'\n 'S2A_MSIL2A_20200604T100031_N0212_R122_T33TTG_20200826T023226.SAFE'\n 'S2B_MSIL2A_20200609T100029_N0212_R122_T33TTG_20200826T185001.SAFE'\n 'S2A_MSIL2A_20200614T100031_N0212_R122_T33TTG_20200827T081726.SAFE'\n 'S2B_MSIL2A_20200619T100029_N0212_R122_T33TTG_20200823T083526.SAFE']",
+            "s2:reflectance_conversion_factor": "[0.97604796 0.97424025 0.97262376 0.97120902 0.97000511 0.96901978]",
+            "s2:saturated_defective_pixel_percentage": "0.0",
+            "s2:snow_ice_percentage": "[4.38000e-04 4.78724e-01 2.24370e-02 7.21530e-02 4.04210e-02 1.19000e-04]",
+            "s2:thin_cirrus_percentage": "[ 6.948985  3.208941 14.448059  4.67167   1.260762 19.951659]",
+            "s2:unclassified_percentage": "[0.828401 3.021058 1.971672 1.517702 2.284757 0.643153]",
+            "s2:vegetation_percentage": "[28.744218 10.92589   6.165734 21.723017 16.37969  14.056589]",
+            "s2:water_percentage": "[46.363291 46.811178 21.742529 46.179581 48.292616 17.635615]",
+            "sat:orbit_state": "descending",
+            "sat:relative_orbit": "122",
+            "spec": "RasterSpec(epsg=32633, bounds=(199980, 4590240, 309780, 4700040), resolutions_xy=(10, 10))",
+            "title": "['Band 2 - Blue - 10m' 'Band 3 - Green - 10m' 'Band 4 - Red - 10m'\n 'Band 5 - Vegetation red edge 1 - 20m'\n 'Band 6 - Vegetation red edge 2 - 20m'\n 'Band 7 - Vegetation red edge 3 - 20m' 'Band 8 - NIR - 10m'\n 'Band 8A - Vegetation red edge 4 - 20m' 'Band 11 - SWIR (1.6) - 20m'\n 'Band 12 - SWIR (2.2) - 20m' 'Scene classfication map (SCL)']",
+            "transform": "| 10.00, 0.00, 199980.00|\n| 0.00,-10.00, 4700040.00|\n| 0.00, 0.00, 1.00|"
+        },
+        ".zgroup": {
+            "zarr_format": 2
+        },
+        "B02/.zarray": {
+            "chunks": [
+                135,
+                412
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f8",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                135,
+                412
+            ],
+            "zarr_format": 2
+        },
+        "B02/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "y",
+                "x"
+            ]
+        },
+        "B03/.zarray": {
+            "chunks": [
+                135,
+                412
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f8",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                135,
+                412
+            ],
+            "zarr_format": 2
+        },
+        "B03/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "y",
+                "x"
+            ]
+        },
+        "B04/.zarray": {
+            "chunks": [
+                135,
+                412
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f8",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                135,
+                412
+            ],
+            "zarr_format": 2
+        },
+        "B04/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "y",
+                "x"
+            ]
+        },
+        "B05/.zarray": {
+            "chunks": [
+                135,
+                412
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f8",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                135,
+                412
+            ],
+            "zarr_format": 2
+        },
+        "B05/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "y",
+                "x"
+            ]
+        },
+        "B06/.zarray": {
+            "chunks": [
+                135,
+                412
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f8",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                135,
+                412
+            ],
+            "zarr_format": 2
+        },
+        "B06/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "y",
+                "x"
+            ]
+        },
+        "B07/.zarray": {
+            "chunks": [
+                135,
+                412
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f8",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                135,
+                412
+            ],
+            "zarr_format": 2
+        },
+        "B07/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "y",
+                "x"
+            ]
+        },
+        "B08/.zarray": {
+            "chunks": [
+                135,
+                412
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f8",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                135,
+                412
+            ],
+            "zarr_format": 2
+        },
+        "B08/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "y",
+                "x"
+            ]
+        },
+        "B11/.zarray": {
+            "chunks": [
+                135,
+                412
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f8",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                135,
+                412
+            ],
+            "zarr_format": 2
+        },
+        "B11/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "y",
+                "x"
+            ]
+        },
+        "B12/.zarray": {
+            "chunks": [
+                135,
+                412
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f8",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                135,
+                412
+            ],
+            "zarr_format": 2
+        },
+        "B12/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "y",
+                "x"
+            ]
+        },
+        "B8A/.zarray": {
+            "chunks": [
+                135,
+                412
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f8",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                135,
+                412
+            ],
+            "zarr_format": 2
+        },
+        "B8A/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "y",
+                "x"
+            ]
+        },
+        "x/.zarray": {
+            "chunks": [
+                412
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f8",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                412
+            ],
+            "zarr_format": 2
+        },
+        "x/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "x"
+            ]
+        },
+        "y/.zarray": {
+            "chunks": [
+                135
+            ],
+            "compressor": {
+                "blocksize": 0,
+                "clevel": 5,
+                "cname": "lz4",
+                "id": "blosc",
+                "shuffle": 1
+            },
+            "dtype": "<f8",
+            "fill_value": "NaN",
+            "filters": null,
+            "order": "C",
+            "shape": [
+                135
+            ],
+            "zarr_format": 2
+        },
+        "y/.zattrs": {
+            "_ARRAY_DIMENSIONS": [
+                "y"
+            ]
+        }
+    },
+    "zarr_consolidated_format": 1
+}
