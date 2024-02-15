@@ -328,7 +328,7 @@ document.write(`
 <div id="searchbox"></div>
                 <article class="bd-article" role="main">
                   
-  <p><a class="reference external" href="https://github.com/scottclowe/python-template-repo/actions?query=workflow%3Atests"><img alt="GHA Status" src="https://github.com/scottclowe/python-template-repo/workflows/tests/badge.svg" /></a> <a class="reference external" href="https://codecov.io/github/scottclowe/python-template-repo?branch=master"><img alt="Coverage" src="https://codecov.io/github/scottclowe/python-template-repo/coverage.svg?branch=master" /></a> <a class="reference external" href="https://github.com/pre-commit/pre-commit"><img alt="pre-commit" src="https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&amp;logoColor=white" /></a> <a class="reference external" href="https://github.com/psf/black"><img alt="black" src="https://img.shields.io/badge/code%20style-black-000000.svg" /></a></p>
+  <p><a class="reference external" href="https://github.com/gmaticseu/iride-egeos/actions?query=workflow%3Atests"><img alt="GHA Status" src="https://github.com/gmaticseu/iride-egeos/workflows/tests/badge.svg" /></a> <a class="reference external" href="https://codecov.io/github/gmaticseu/iride-egeos?branch=master"><img alt="Coverage" src="https://codecov.io/github/gmaticseu/iride-egeos/coverage.svg?branch=master" /></a> <a class="reference external" href="https://github.com/pre-commit/pre-commit"><img alt="pre-commit" src="https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&amp;logoColor=white" /></a> <a class="reference external" href="https://github.com/psf/black"><img alt="black" src="https://img.shields.io/badge/code%20style-black-000000.svg" /></a></p>
 <div class="section" id="python-template-repository">
 <h1>Python Template Repository<a class="headerlink" href="#python-template-repository" title="Permalink to this heading">#</a></h1>
 <p>This repository gives a fully-featured template or skeleton for new Python repositories.</p>
@@ -340,7 +340,7 @@ document.write(`
 The fork button is for making a new template based in this one, not for using the template to make a new repository.</p></li>
 <li><ol class="arabic">
 <li><p><strong>New GitHub repository</strong>.</p>
-<p>You can create a new repository on GitHub from this template by clicking the <a class="reference external" href="https://github.com/scottclowe/python-template-repo/generate">Use this template</a> button.</p>
+<p>You can create a new repository on GitHub from this template by clicking the <a class="reference external" href="https://github.com/gmaticseu/iride-egeos/generate">Use this template</a> button.</p>
 <p><em>Need to support Python 2.7?</em>
 Make sure to check the “Include all branches” option while creating the new repository.</p>
 <p>Then clone your new repository to your local system [pseudocode]:</p>
@@ -356,21 +356,21 @@ git<span class="w"> </span>push<span class="w"> </span>-f
 <p>You can now delete the python2.7 branch from your remote.</p>
 </li>
 <li><p><strong>New repository not on GitHub</strong>.</p>
-<p>Alternatively, if your new repository is not going to be on GitHub, you can download <a class="reference external" href="https://github.com/scottclowe/python-template-repo/archive/master.zip">this repo as a zip</a> and work from there.</p>
+<p>Alternatively, if your new repository is not going to be on GitHub, you can download <a class="reference external" href="https://github.com/gmaticseu/iride-egeos/archive/master.zip">this repo as a zip</a> and work from there.</p>
 <p><em>Need to support Python 2.7?</em>
-Download the <a class="reference external" href="https://github.com/scottclowe/python-template-repo/archive/refs/heads/python2.7.zip">python2.7 branch as a zip</a> instead.</p>
+Download the <a class="reference external" href="https://github.com/gmaticseu/iride-egeos/archive/refs/heads/python2.7.zip">python2.7 branch as a zip</a> instead.</p>
 <p>Either way, you should note that this zip does not include the .gitignore and .gitattributes files (because GitHub automatically omits them, which is usually helpful but is not for our purposes).
-Thus you will also need to download the <a class="reference external" href="https://raw.githubusercontent.com/scottclowe/python-template-repo/master/.gitignore">.gitignore</a> and <a class="reference external" href="https://raw.githubusercontent.com/scottclowe/python-template-repo/master/.gitattributes">.gitattributes</a> files.</p>
+Thus you will also need to download the <a class="reference external" href="https://raw.githubusercontent.com/gmaticseu/iride-egeos/master/.gitignore">.gitignore</a> and <a class="reference external" href="https://raw.githubusercontent.com/gmaticseu/iride-egeos/master/.gitattributes">.gitattributes</a> files.</p>
 <p>The following shell commands can be used for this purpose on *nix systems:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>init<span class="w"> </span>your_repo_name
 <span class="nb">cd</span><span class="w"> </span>your_repo_name
-wget<span class="w"> </span>https://github.com/scottclowe/python-template-repo/archive/master.zip
+wget<span class="w"> </span>https://github.com/gmaticseu/iride-egeos/archive/master.zip
 unzip<span class="w"> </span>master.zip
 mv<span class="w"> </span>-n<span class="w"> </span>python-template-repo-master/*<span class="w"> </span>python-template-repo-master/.<span class="o">[</span>!.<span class="o">]</span>*<span class="w"> </span>.
 rm<span class="w"> </span>-r<span class="w"> </span>python-template-repo-master/
 rm<span class="w"> </span>master.zip
-wget<span class="w"> </span>https://raw.githubusercontent.com/scottclowe/python-template-repo/master/.gitignore
-wget<span class="w"> </span>https://raw.githubusercontent.com/scottclowe/python-template-repo/master/.gitattributes
+wget<span class="w"> </span>https://raw.githubusercontent.com/gmaticseu/iride-egeos/master/.gitignore
+wget<span class="w"> </span>https://raw.githubusercontent.com/gmaticseu/iride-egeos/master/.gitattributes
 git<span class="w"> </span>add<span class="w"> </span>.
 git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Initial commit&quot;</span>
 git<span class="w"> </span>rm<span class="w"> </span>LICENSE
@@ -453,17 +453,17 @@ mv<span class="w"> </span>package_name<span class="w"> </span><span class="s2">&
 </div>
 <p>Which will make changes in the following places.</p>
 <ul>
-<li><p>In <code class="docutils literal notranslate"><span class="pre">setup.py</span></code>, <a class="reference external" href="https://github.com/scottclowe/python-template-repo/blob/master/setup.py#L54">L54</a>:</p>
+<li><p>In <code class="docutils literal notranslate"><span class="pre">setup.py</span></code>, <a class="reference external" href="https://github.com/gmaticseu/iride-egeos/blob/master/setup.py#L54">L54</a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">exec</span><span class="p">(</span><span class="n">read</span><span class="p">(</span><span class="s2">&quot;package_name/__meta__.py&quot;</span><span class="p">),</span> <span class="n">meta</span><span class="p">)</span>
 </pre></div>
 </div>
 </li>
-<li><p>In <code class="docutils literal notranslate"><span class="pre">docs/source/conf.py</span></code>, <a class="reference external" href="https://github.com/scottclowe/python-template-repo/blob/master/docs/source/conf.py#L27">L27</a>:</p>
+<li><p>In <code class="docutils literal notranslate"><span class="pre">docs/source/conf.py</span></code>, <a class="reference external" href="https://github.com/gmaticseu/iride-egeos/blob/master/docs/source/conf.py#L27">L27</a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">package_name</span> <span class="kn">import</span> <span class="n">__meta__</span> <span class="k">as</span> <span class="n">meta</span>  <span class="c1"># noqa: E402 isort:skip</span>
 </pre></div>
 </div>
 </li>
-<li><p>In <code class="docutils literal notranslate"><span class="pre">.github/workflows/test.yaml</span></code>, <a class="reference external" href="https://github.com/scottclowe/python-template-repo/blob/master/.github/workflows/test.yaml#L64">L64</a>, and <code class="docutils literal notranslate"><span class="pre">.github/workflows/test-release-candidate.yaml</span></code>, <a class="reference external" href="https://github.com/scottclowe/python-template-repo/blob/master/.github/workflows/test-release-candidate.yaml#L90">L90</a>:</p>
+<li><p>In <code class="docutils literal notranslate"><span class="pre">.github/workflows/test.yaml</span></code>, <a class="reference external" href="https://github.com/gmaticseu/iride-egeos/blob/master/.github/workflows/test.yaml#L64">L64</a>, and <code class="docutils literal notranslate"><span class="pre">.github/workflows/test-release-candidate.yaml</span></code>, <a class="reference external" href="https://github.com/gmaticseu/iride-egeos/blob/master/.github/workflows/test-release-candidate.yaml#L90">L90</a>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">m</span> <span class="n">pytest</span> <span class="o">--</span><span class="n">cov</span><span class="o">=</span><span class="n">package_name</span> <span class="o">--</span><span class="n">cov</span><span class="o">-</span><span class="n">report</span> <span class="n">term</span> <span class="o">--</span><span class="n">cov</span><span class="o">-</span><span class="n">report</span> <span class="n">xml</span> <span class="o">--</span><span class="n">cov</span><span class="o">-</span><span class="n">config</span> <span class="o">.</span><span class="n">coveragerc</span> <span class="o">--</span><span class="n">junitxml</span><span class="o">=</span><span class="n">testresults</span><span class="o">.</span><span class="n">xml</span>
 </pre></div>
 </div>
@@ -473,7 +473,7 @@ mv<span class="w"> </span>package_name<span class="w"> </span><span class="s2">&
 <li><p>Swap out the contents of <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> for your project’s current requirements.
 If you don’t have any requirements yet, delete the contents of <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code>.</p></li>
 <li><p>Swap out the contents of <code class="docutils literal notranslate"><span class="pre">README.rst</span></code> with an inital description of your project.
-If you are keeping all the badges, make sure to change the URLs from <code class="docutils literal notranslate"><span class="pre">scottclowe/python-template-repo</span></code> to <code class="docutils literal notranslate"><span class="pre">your_username/your_repo</span></code>.
+If you are keeping all the badges, make sure to change the URLs from <code class="docutils literal notranslate"><span class="pre">gmaticseu/iride-egeos</span></code> to <code class="docutils literal notranslate"><span class="pre">your_username/your_repo</span></code>.
 If you prefer, you can use markdown instead of rST.</p></li>
 <li><p>Commit and push your changes:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>add<span class="w"> </span>.
@@ -524,10 +524,10 @@ For a given block of code, a fixed version of black will always produce the same
 However, you should note that different versions of black will produce different outputs.
 If you want to upgrade to a newer version of black, you must change the version everywhere it is specified:</p>
 <ul class="simple">
-<li><p>requirements-dev.txt, <a class="reference external" href="https://github.com/scottclowe/python-template-repo/blob/master/requirements-dev.txt#L1">L1</a></p></li>
-<li><p>.pre-commit-config.yaml, <a class="reference external" href="https://github.com/scottclowe/python-template-repo/blob/master/.pre-commit-config.yaml#L14">L14</a>,
-<a class="reference external" href="https://github.com/scottclowe/python-template-repo/blob/master/.pre-commit-config.yaml#L28">L28</a>, and
-<a class="reference external" href="https://github.com/scottclowe/python-template-repo/blob/master/.pre-commit-config.yaml#L47">L47</a></p></li>
+<li><p>requirements-dev.txt, <a class="reference external" href="https://github.com/gmaticseu/iride-egeos/blob/master/requirements-dev.txt#L1">L1</a></p></li>
+<li><p>.pre-commit-config.yaml, <a class="reference external" href="https://github.com/gmaticseu/iride-egeos/blob/master/.pre-commit-config.yaml#L14">L14</a>,
+<a class="reference external" href="https://github.com/gmaticseu/iride-egeos/blob/master/.pre-commit-config.yaml#L28">L28</a>, and
+<a class="reference external" href="https://github.com/gmaticseu/iride-egeos/blob/master/.pre-commit-config.yaml#L47">L47</a></p></li>
 </ul>
 </div>
 <div class="section" id="pre-commit">
