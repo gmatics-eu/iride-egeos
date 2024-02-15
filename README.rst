@@ -19,7 +19,7 @@ When creating a new repository from this template, these are the steps to follow
 #.
     #.  **New GitHub repository**.
 
-        You can create a new repository on GitHub from this template by clicking the `Use this template <https://github.com/scottclowe/python-template-repo/generate>`_ button.
+        You can create a new repository on GitHub from this template by clicking the `Use this template <https://github.com/gmaticseu/iride-egeos/generate>`_ button.
 
         *Need to support Python 2.7?*
         Make sure to check the "Include all branches" option while creating the new repository.
@@ -38,25 +38,25 @@ When creating a new repository from this template, these are the steps to follow
 
     #.  **New repository not on GitHub**.
 
-        Alternatively, if your new repository is not going to be on GitHub, you can download `this repo as a zip <https://github.com/scottclowe/python-template-repo/archive/master.zip>`_ and work from there.
+        Alternatively, if your new repository is not going to be on GitHub, you can download `this repo as a zip <https://github.com/gmaticseu/iride-egeos/archive/master.zip>`_ and work from there.
 
         *Need to support Python 2.7?*
-        Download the `python2.7 branch as a zip <https://github.com/scottclowe/python-template-repo/archive/refs/heads/python2.7.zip>`_ instead.
+        Download the `python2.7 branch as a zip <https://github.com/gmaticseu/iride-egeos/archive/refs/heads/python2.7.zip>`_ instead.
 
         Either way, you should note that this zip does not include the .gitignore and .gitattributes files (because GitHub automatically omits them, which is usually helpful but is not for our purposes).
-        Thus you will also need to download the `.gitignore <https://raw.githubusercontent.com/scottclowe/python-template-repo/master/.gitignore>`__ and `.gitattributes <https://raw.githubusercontent.com/scottclowe/python-template-repo/master/.gitattributes>`__ files.
+        Thus you will also need to download the `.gitignore <https://raw.githubusercontent.com/gmaticseu/iride-egeos/master/.gitignore>`__ and `.gitattributes <https://raw.githubusercontent.com/gmaticseu/iride-egeos/master/.gitattributes>`__ files.
 
         The following shell commands can be used for this purpose on \*nix systems::
 
           git init your_repo_name
           cd your_repo_name
-          wget https://github.com/scottclowe/python-template-repo/archive/master.zip
+          wget https://github.com/gmaticseu/iride-egeos/archive/master.zip
           unzip master.zip
           mv -n python-template-repo-master/* python-template-repo-master/.[!.]* .
           rm -r python-template-repo-master/
           rm master.zip
-          wget https://raw.githubusercontent.com/scottclowe/python-template-repo/master/.gitignore
-          wget https://raw.githubusercontent.com/scottclowe/python-template-repo/master/.gitattributes
+          wget https://raw.githubusercontent.com/gmaticseu/iride-egeos/master/.gitignore
+          wget https://raw.githubusercontent.com/gmaticseu/iride-egeos/master/.gitattributes
           git add .
           git commit -m "Initial commit"
           git rm LICENSE
@@ -138,15 +138,15 @@ When creating a new repository from this template, these are the steps to follow
 
     .. highlight:: python
 
-    - In ``setup.py``, `L54 <https://github.com/scottclowe/python-template-repo/blob/master/setup.py#L54>`__::
+    - In ``setup.py``, `L54 <https://github.com/gmaticseu/iride-egeos/blob/master/setup.py#L54>`__::
 
         exec(read("package_name/__meta__.py"), meta)
 
-    - In ``docs/source/conf.py``, `L27 <https://github.com/scottclowe/python-template-repo/blob/master/docs/source/conf.py#L27>`__::
+    - In ``docs/source/conf.py``, `L27 <https://github.com/gmaticseu/iride-egeos/blob/master/docs/source/conf.py#L27>`__::
 
         from package_name import __meta__ as meta  # noqa: E402 isort:skip
 
-    - In ``.github/workflows/test.yaml``, `L64 <https://github.com/scottclowe/python-template-repo/blob/master/.github/workflows/test.yaml#L64>`__, and ``.github/workflows/test-release-candidate.yaml``, `L90 <https://github.com/scottclowe/python-template-repo/blob/master/.github/workflows/test-release-candidate.yaml#L90>`__::
+    - In ``.github/workflows/test.yaml``, `L64 <https://github.com/gmaticseu/iride-egeos/blob/master/.github/workflows/test.yaml#L64>`__, and ``.github/workflows/test-release-candidate.yaml``, `L90 <https://github.com/gmaticseu/iride-egeos/blob/master/.github/workflows/test-release-candidate.yaml#L90>`__::
 
         python -m pytest --cov=package_name --cov-report term --cov-report xml --cov-config .coveragerc --junitxml=testresults.xml
 
@@ -156,7 +156,7 @@ When creating a new repository from this template, these are the steps to follow
     If you don't have any requirements yet, delete the contents of ``requirements.txt``.
 
 #.  Swap out the contents of ``README.rst`` with an inital description of your project.
-    If you are keeping all the badges, make sure to change the URLs from ``scottclowe/python-template-repo`` to ``your_username/your_repo``.
+    If you are keeping all the badges, make sure to change the URLs from ``gmaticseu/iride-egeos`` to ``your_username/your_repo``.
     If you prefer, you can use markdown instead of rST.
 
 #.  Commit and push your changes::
@@ -232,10 +232,10 @@ For a given block of code, a fixed version of black will always produce the same
 However, you should note that different versions of black will produce different outputs.
 If you want to upgrade to a newer version of black, you must change the version everywhere it is specified:
 
-- requirements-dev.txt, `L1 <https://github.com/scottclowe/python-template-repo/blob/master/requirements-dev.txt#L1>`__
-- .pre-commit-config.yaml, `L14 <https://github.com/scottclowe/python-template-repo/blob/master/.pre-commit-config.yaml#L14>`__,
-  `L28 <https://github.com/scottclowe/python-template-repo/blob/master/.pre-commit-config.yaml#L28>`__, and
-  `L47 <https://github.com/scottclowe/python-template-repo/blob/master/.pre-commit-config.yaml#L47>`__
+- requirements-dev.txt, `L1 <https://github.com/gmaticseu/iride-egeos/blob/master/requirements-dev.txt#L1>`__
+- .pre-commit-config.yaml, `L14 <https://github.com/gmaticseu/iride-egeos/blob/master/.pre-commit-config.yaml#L14>`__,
+  `L28 <https://github.com/gmaticseu/iride-egeos/blob/master/.pre-commit-config.yaml#L28>`__, and
+  `L47 <https://github.com/gmaticseu/iride-egeos/blob/master/.pre-commit-config.yaml#L47>`__
 
 .. _black: https://github.com/psf/black
 
@@ -518,11 +518,11 @@ Or to report a bug or request something new, make an issue.
 .. highlight:: python
 
 
-.. |GHA tests| image:: https://github.com/scottclowe/python-template-repo/workflows/tests/badge.svg
-   :target: https://github.com/scottclowe/python-template-repo/actions?query=workflow%3Atests
+.. |GHA tests| image:: https://github.com/gmaticseu/iride-egeos/workflows/tests/badge.svg
+   :target: https://github.com/gmaticseu/iride-egeos/actions?query=workflow%3Atests
    :alt: GHA Status
-.. |Codecov report| image:: https://codecov.io/github/scottclowe/python-template-repo/coverage.svg?branch=master
-   :target: https://codecov.io/github/scottclowe/python-template-repo?branch=master
+.. |Codecov report| image:: https://codecov.io/github/gmaticseu/iride-egeos/coverage.svg?branch=master
+   :target: https://codecov.io/github/gmaticseu/iride-egeos?branch=master
    :alt: Coverage
 .. |pre-commit| image:: https://img.shields.io/badge/pre--commit-enabled-brightgreen?logo=pre-commit&logoColor=white
    :target: https://github.com/pre-commit/pre-commit

@@ -9,4 +9,4 @@ author = "GMATICS srl"
 author_email = "services@gmatics.eu"
 description = ""  # One-liner
 url = ""  # your project homepage
-license = "Protected"  # See https://choosealicense.com
+license = "MIT"  # See https://choosealicense.com
