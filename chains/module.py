@@ -1,25 +1,25 @@
-import rasterio
-import stackstac
-import pystac_client
-import planetary_computer
+import configparser
 import datetime
+import logging
 import os
 import time
-import logging
-import numpy as np
-import xarray as xr
-import rioxarray as rio
-import pandas as pd
-import dask.array as da
-from pystac_client.stac_api_io import StacApiIO
-from retry import retry
-from urllib3 import Retry
 from functools import wraps
+
+import dask.array as da
+import numpy as np
+import pandas as pd
+import planetary_computer
+import pystac_client
+import rasterio
+import rioxarray as rio
+import stackstac
+import xarray as xr
+from pystac_client.stac_api_io import StacApiIO
 from rasterio.features import rasterize
+from retry import retry
 from scipy import ndimage
 from scipy.ndimage import binary_dilation
-
-from scripts.foresthealth import get_config
+from urllib3 import Retry
 
 
 def initialize_logger(name: str = "my-logger"):
@@ -36,16 +36,16 @@ def initialize_logger(name: str = "my-logger"):
     logger = logging.getLogger(name)
 
     # Extract chain, assessment_kind and aoi from config_dict
-    config_dict = get_config(config_file='config.ini')
-    chain = config_dict['chain']
-    assessment_kind = config_dict['assessment_kind']
-    aoi = config_dict['aoi']
+    config_dict = get_config(config_file="config.ini")
+    chain = config_dict["chain"]
+    assessment_kind = config_dict["assessment_kind"]
+    aoi = config_dict["aoi"]
 
     # use current time for log file name, along with chain, assessment_kind and aoi
     now_str = datetime.now().strftime("%Y%m%d%H%M%S")
     log_file_name = f"{aoi}_{chain}_{assessment_kind}_{now_str}.log"
 
-    log_dir = os.path.join('.', '..', 'log')
+    log_dir = os.path.join(".", "..", "log")
     log_file = os.path.join(log_dir, log_file_name)
 
     if not os.path.exists(log_dir):
@@ -53,7 +53,9 @@ def initialize_logger(name: str = "my-logger"):
 
     handler = logging.FileHandler(log_file)
 
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
     handler.setFormatter(formatter)
 
     logger.addHandler(handler)
@@ -76,14 +78,16 @@ def timed(func):
     return wrapper
 
 
-def stac_to_dataset(aoi: dict,
-                    time_range: tuple,
-                    collections: list,
-                    query: dict,
-                    assets: list,
-                    epsg: int,
-                    resolution: float,
-                    nodata: float = np.nan) -> xr.Dataset:
+def stac_to_dataset(
+    aoi: dict,
+    time_range: tuple,
+    collections: list,
+    query: dict,
+    assets: list,
+    epsg: int,
+    resolution: float,
+    nodata: float = np.nan,
+) -> xr.Dataset:
     """
     Perform a SpatioTemporal Asset Catalog (STAC) query and return the results as an Xarray Dataset.
 
@@ -123,14 +127,17 @@ def stac_to_dataset(aoi: dict,
     """
 
     retry = Retry(
-        total=10, backoff_factor=1, status_forcelist=[404, 502, 503, 504], allowed_methods=None
+        total=10,
+        backoff_factor=1,
+        status_forcelist=[404, 502, 503, 504],
+        allowed_methods=None,
     )
     stac_api_io = StacApiIO(max_retries=retry)
 
     stac = pystac_client.Client.open(
         "https://planetarycomputer.microsoft.com/api/stac/v1",
         modifier=planetary_computer.sign_inplace,
-        stac_io=stac_api_io
+        stac_io=stac_api_io,
     )
 
     search = stac.search(
@@ -142,18 +149,18 @@ def stac_to_dataset(aoi: dict,
 
     items = search.item_collection()
 
-    data = (
-        stackstac.stack(
-            items,
-            assets=assets,
-            epsg=epsg,
-            resolution=resolution,
-        )
-        .where(lambda x: x != nodata, other=np.nan)  # sentinel-2 uses 0 as nodata
-    )
-    ds = data.to_dataset('band')
+    data = stackstac.stack(
+        items,
+        assets=assets,
+        epsg=epsg,
+        resolution=resolution,
+    ).where(
+        lambda x: x != nodata, other=np.nan
+    )  # sentinel-2 uses 0 as nodata
+    ds = data.to_dataset("band")
 
     return ds
+
 
 def dilate_each_matrix(mask_np, iterations=1, structure=None):
     """
@@ -176,7 +183,9 @@ def dilate_each_matrix(mask_np, iterations=1, structure=None):
         inverted_mask = np.logical_not(mask_np[i])
 
         # Apply binary dilation to the inverted mask
-        dilated_inverted_mask = binary_dilation(inverted_mask, iterations=iterations, structure=structure)
+        dilated_inverted_mask = binary_dilation(
+            inverted_mask, iterations=iterations, structure=structure
+        )
 
         # Invert the mask again after dilation
         dilated_mask_np[i] = np.logical_not(dilated_inverted_mask)
@@ -184,8 +193,9 @@ def dilate_each_matrix(mask_np, iterations=1, structure=None):
     return dilated_mask_np
 
 
-
-def s2l2a_cloudmask(ds: xr.Dataset, da_qa: xr.DataArray, dilation_iter: int = 13) -> xr.Dataset:
+def s2l2a_cloudmask(
+    ds: xr.Dataset, da_qa: xr.DataArray, dilation_iter: int = 13
+) -> xr.Dataset:
     """
     Applies cloud masking to a given xarray Dataset containing
     Sentinel-2 L2A data based on the quality band. It also applies
@@ -238,11 +248,11 @@ def s2l2a_edgemask(ds: xr.Dataset) -> xr.Dataset:
     """
 
     # select the B8A and B9 bands and apply the mask
-    b8a_band = ds['B8A']
-    b9_band = ds['B09']
+    b8a_band = ds["B8A"]
+    b9_band = ds["B09"]
 
     # create a mask where either of the selected bands has valid data
-    combined_mask = (b8a_band.notnull() & b9_band.notnull())
+    combined_mask = b8a_band.notnull() & b9_band.notnull()
 
     # Apply the mask to the original dataset
     ds_masked = ds.where(combined_mask)
@@ -293,12 +303,12 @@ def s2l2a_masked(ds: xr.Dataset) -> xr.Dataset:
         # Apply masking
         ds_masked = s2l2a_masked(ds)
     """
-    da_qa = ds['SCL']
+    da_qa = ds["SCL"]
     # Apply existing masks
     ds_masked = s2l2a_cloudmask(ds, da_qa)
     ds_masked = s2l2a_edgemask(ds_masked)
-    band_green = 'B03'
-    band_swir = 'B11'
+    band_green = "B03"
+    band_swir = "B11"
     ds_masked = s2l2a_snowmask(ds_masked, band_green, band_swir)
 
     return ds_masked
@@ -318,7 +328,21 @@ def harmonize_to_old(ds: xr.Dataset) -> xr.Dataset:
     cutoff = datetime.datetime(2022, 1, 25)
 
     offset = 1000
-    bands = ["B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B8A", "B09", "B10", "B11", "B12"]
+    bands = [
+        "B01",
+        "B02",
+        "B03",
+        "B04",
+        "B05",
+        "B06",
+        "B07",
+        "B08",
+        "B8A",
+        "B09",
+        "B10",
+        "B11",
+        "B12",
+    ]
     dataset_bands = list(ds.data_vars)
 
     old = ds.sel(time=slice(cutoff))
@@ -330,7 +354,9 @@ def harmonize_to_old(ds: xr.Dataset) -> xr.Dataset:
     new_harmonized = ds.sel(time=slice(cutoff, None))[to_process].clip(offset)
     new_harmonized -= offset
 
-    new = xr.merge([new, new_harmonized])[dataset_bands]  # .sel(band=ds.band.data.tolist())
+    new = xr.merge([new, new_harmonized])[
+        dataset_bands
+    ]  # .sel(band=ds.band.data.tolist())
     return xr.concat([old, new], dim="time")
 
 
@@ -347,7 +373,7 @@ def coords_to_attrs(ds: xr.Dataset, excluded: list = []) -> xr.Dataset:
         xarray.Dataset: The processed Dataset.
     """
     for coord in ds.coords:
-        if coord not in ['x', 'y', 'time'] + excluded:
+        if coord not in ["x", "y", "time"] + excluded:
             ds.attrs[str(coord)] = str(ds.coords[coord].values)
             ds = ds.drop_vars(coord)
     return ds
@@ -366,7 +392,7 @@ def isel_func(ds: xr.Dataset, indexer: xr.DataArray) -> xr.Dataset:
     Returns:
         xarray.Dataset: The processed Dataset.
     """
-    ds_sel = ds.isel(time=indexer).drop_vars('time')
+    ds_sel = ds.isel(time=indexer).drop_vars("time")
     return ds_sel
 
 
@@ -386,13 +412,13 @@ def medoid_mosaic(ds: xr.Dataset) -> xr.Dataset:
         xarray.Dataset: Dataset containing the medoid composite.
     """
     # chunks the dataset along the x and y dimensions (time should remain unchunked)
-    ds = ds.chunk({'time': -1, 'y': 1024, 'x': 1024})
+    ds = ds.chunk({"time": -1, "y": 1024, "x": 1024})
 
     # drops coordinates with no associated dimension
     ds = coords_to_attrs(ds)
 
     # time median
-    ds_median = ds.median(dim='time', skipna=True)
+    ds_median = ds.median(dim="time", skipna=True)
 
     # Euclidean distance between each observation and their median, summing among all bands.
     # da_dist is a DataArray with the same dimensions as ds and only one variable, the distance.
@@ -402,20 +428,20 @@ def medoid_mosaic(ds: xr.Dataset) -> xr.Dataset:
 
     # for each pixel, finds the time index with the smallest value (for the distance variable).
     # medoid_index is a DataArray with the same spatial dimensions as ds and only one variable, the time index
-    medoid_index = da_dist.argmin(dim='time', skipna=True)
-    medoid_index.chunk({'x': ds.chunksizes['x'], 'y': ds.chunksizes['y']})
+    medoid_index = da_dist.argmin(dim="time", skipna=True)
+    medoid_index.chunk({"x": ds.chunksizes["x"], "y": ds.chunksizes["y"]})
 
     # to use map_blocks with a function that modifies the Dataset shape, you need to provide a template
     # dataset that has exactly the same shape as the output of map_blocks
-    ds_template = ds.isel(time=0).drop_vars('time')
+    ds_template = ds.isel(time=0).drop_vars("time")
 
     # applies the isel function in a vectorized way
     ds_medoid = ds.map_blocks(isel_func, args=[medoid_index], template=ds_template)
 
     # counts the number of observations to measure the quality of the medoid and stores it in a new dataset variable
 
-    n_images = ds['B02'].count(dim='time')
-    ds_medoid['nImages'] = n_images
+    n_images = ds["B02"].count(dim="time")
+    ds_medoid["nImages"] = n_images
 
     return ds_medoid
 
@@ -433,33 +459,37 @@ def datarray2dataset(da: xr.DataArray) -> xr.Dataset:
     """
 
     # Convert to DataSet
-    dataset = da.to_dataset(dim='band')
+    dataset = da.to_dataset(dim="band")
 
     # Check if 'long_name' attribute exists and matches the number of bands
-    if 'long_name' in da.attrs and len(da.attrs['long_name']) == da.sizes['band']:
-        variable_names = da.attrs['long_name']
+    if "long_name" in da.attrs and len(da.attrs["long_name"]) == da.sizes["band"]:
+        variable_names = da.attrs["long_name"]
         name_dict = {i: name for i, name in enumerate(variable_names, start=1)}
         dataset = dataset.rename(name_dict)
     else:
-        print("'long_name' attribute is not present or does not match the number of bands. Bands will not be renamed.")
+        print(
+            "'long_name' attribute is not present or does not match the number of bands. Bands will not be renamed."
+        )
 
     return dataset
 
 
-def apply_fnf_mask(data_array: xr.DataArray, mask_tiff_path: str, epsg: int) -> xr.DataArray:
+def apply_fnf_mask(
+    data_array: xr.DataArray, mask_tiff_path: str, epsg: int
+) -> xr.DataArray:
     """
-        Apply a mask to an xarray.DataArray based on a external forest map (in GeoTIFF format).
-        The forest mask must have:
-        - 0 or nan in case of not forest type pixel
-        - a number >=1 for a forest type pixel.
+    Apply a mask to an xarray.DataArray based on a external forest map (in GeoTIFF format).
+    The forest mask must have:
+    - 0 or nan in case of not forest type pixel
+    - a number >=1 for a forest type pixel.
 
-        Parameters:
-            data_array (xarray.DataArray): The xarray.DataArray to be masked.
-            mask_tiff_path (str): The file path to the  GeoTIFF defining the mask.
+    Parameters:
+        data_array (xarray.DataArray): The xarray.DataArray to be masked.
+        mask_tiff_path (str): The file path to the  GeoTIFF defining the mask.
 
-        Returns:
-            xarray.DataArray: The xarray.DataArray with the mask applied.
-        """
+    Returns:
+        xarray.DataArray: The xarray.DataArray with the mask applied.
+    """
     # Read the mask GeoTIFF using rioxarray
     mask = xr.open_dataset(mask_tiff_path)
     data_array.rio.set_crs("EPSG:" + str(epsg))
@@ -467,10 +497,12 @@ def apply_fnf_mask(data_array: xr.DataArray, mask_tiff_path: str, epsg: int) -> 
     # Reproject and align the mask_data_array to the same grid as data_array using 'nearest' resampling
     mask_repr_match = mask.rio.reproject_match(data_array)
 
-    mask_repr_match = mask_repr_match.assign_coords({
-        "x": data_array.x,
-        "y": data_array.y,
-    })
+    mask_repr_match = mask_repr_match.assign_coords(
+        {
+            "x": data_array.x,
+            "y": data_array.y,
+        }
+    )
 
     # Apply the mask
     # if the provided mask is non-binary (i.e. it's a forest category map), makes it binary by
@@ -483,10 +515,12 @@ def apply_fnf_mask(data_array: xr.DataArray, mask_tiff_path: str, epsg: int) -> 
         mask_repr_match = mask_repr_match.where(mask_repr_match == 0, 1)
     masked_data = data_array.where(mask_repr_match == 1, 255)
 
-    return masked_data['band_data'].transpose('band', 'y', 'x')
+    return masked_data["band_data"].transpose("band", "y", "x")
 
 
-def clip_raster_by_vector(data_array: xr.DataArray, vector: xr.DataArray) -> xr.DataArray:
+def clip_raster_by_vector(
+    data_array: xr.DataArray, vector: xr.DataArray
+) -> xr.DataArray:
     """
     Clip a DataArray based on the polygon defined by the vector and return a new DataArray.
     This method put no data value outside the vector border.
@@ -528,15 +562,18 @@ def rasterize_geodataframe(gdf, raster_template_path):
             transform=src.transform,
             fill=0,
             all_touched=True,
-            dtype='uint8'
+            dtype="uint8",
         )
 
-        raster_meta['dtype'] = 'uint8'
+        raster_meta["dtype"] = "uint8"
 
         raster_xarray = xr.DataArray(
             rasterized,
             dims=("y", "x"),
-            coords={"y": np.arange(raster_meta['height']), "x": np.arange(raster_meta['width'])}
+            coords={
+                "y": np.arange(raster_meta["height"]),
+                "x": np.arange(raster_meta["width"]),
+            },
         )
 
     return raster_xarray, raster_meta
@@ -571,18 +608,20 @@ def calculate_ndmi_nbr_msi(ds: xr.Dataset) -> xr.DataArray:
     """
     # convert xarray datarray to dataset
 
-    ndmi = normalized_difference(ds['B08'], ds['B11'])
-    nbr = normalized_difference(ds['B08'], ds['B12'])
-    msi = ds['B11'] / ds['B08']
+    ndmi = normalized_difference(ds["B08"], ds["B11"])
+    nbr = normalized_difference(ds["B08"], ds["B12"])
+    msi = ds["B11"] / ds["B08"]
     return ndmi, nbr, msi
 
 
-def calculate_magnitude(ndmi_pre: xr.DataArray,
-                        nbr_pre: xr.DataArray,
-                        msi_pre: xr.DataArray,
-                        ndmi_post: xr.DataArray,
-                        nbr_post: xr.DataArray,
-                        msi_post: xr.DataArray) -> xr.DataArray:
+def calculate_magnitude(
+    ndmi_pre: xr.DataArray,
+    nbr_pre: xr.DataArray,
+    msi_pre: xr.DataArray,
+    ndmi_post: xr.DataArray,
+    nbr_post: xr.DataArray,
+    msi_post: xr.DataArray,
+) -> xr.DataArray:
     """
     Given six Xarray DataArray containing the NDMI, NBR and MSI indexes over two
     concatenated periods of time, the method uses a particular implementation of the Three Indices Three Dimensions (3I3D)
@@ -610,7 +649,7 @@ def calculate_magnitude(ndmi_pre: xr.DataArray,
 
     # va = xr.merge([x1, y1, z1]).to_dataset('band').rename({1: 'ndmi_va', 2: 'nbr_va', 3: 'msi_va'})
 
-    modulo_a = np.sqrt(x1 ** 2 + y1 ** 2 + z1 ** 2)
+    modulo_a = np.sqrt(x1**2 + y1**2 + z1**2)
     phi_a = np.arctan(y1 / x1) * 180 / 3.1416
     theta_a = np.arccos(z1 / modulo_a) * 180 / 3.1416
 
@@ -627,15 +666,17 @@ def calculate_magnitude(ndmi_pre: xr.DataArray,
     return magnitude
 
 
-def calculate_magnitude_trio(ndmi_pre: xr.DataArray,
-                             nbr_pre: xr.DataArray,
-                             msi_pre: xr.DataArray,
-                             ndmi_x: xr.DataArray,
-                             nbr_x: xr.DataArray,
-                             msi_x: xr.DataArray,
-                             ndmi_post: xr.DataArray,
-                             nbr_post: xr.DataArray,
-                             msi_post: xr.DataArray) -> xr.DataArray:
+def calculate_magnitude_trio(
+    ndmi_pre: xr.DataArray,
+    nbr_pre: xr.DataArray,
+    msi_pre: xr.DataArray,
+    ndmi_x: xr.DataArray,
+    nbr_x: xr.DataArray,
+    msi_x: xr.DataArray,
+    ndmi_post: xr.DataArray,
+    nbr_post: xr.DataArray,
+    msi_post: xr.DataArray,
+) -> xr.DataArray:
     """
     Given nine Xarray DataArray containing the NDMI, NBR and MSI indexes over three
     concatenated periods of time, uses the 3I3D algorithm to compute
@@ -665,7 +706,7 @@ def calculate_magnitude_trio(ndmi_pre: xr.DataArray,
     y2 = nbr_post - nbr_x
     z2 = msi_post - msi_x
 
-    modulo_a = np.sqrt(x1 ** 2 + y1 ** 2 + z1 ** 2)
+    modulo_a = np.sqrt(x1**2 + y1**2 + z1**2)
     phi_a = np.arctan(y1 / x1) * 180 / 3.1416
     theta_a = np.arccos(z1 / modulo_a) * 180 / 3.1416
 
@@ -679,7 +720,7 @@ def calculate_magnitude_trio(ndmi_pre: xr.DataArray,
     # magnitude = magnitude * 255
     # magnitude = magnitude.where(magnitude <= 255, 255).astype('uint8')
 
-    modulo_b = np.sqrt(x2 ** 2 + y2 ** 2 + z2 ** 2)
+    modulo_b = np.sqrt(x2**2 + y2**2 + z2**2)
     phi_b = np.arctan(y2 / x2) * 180 / 3.1416
     theta_b = np.arccos(z2 / modulo_b) * 180 / 3.1416
     phi_b = phi_b.where(x2 >= 0, phi_b + 180)
@@ -697,10 +738,7 @@ def calculate_magnitude_trio(ndmi_pre: xr.DataArray,
     return magnitude
 
 
-def apply_mmu_img(
-        da: xr.DataArray,
-        mmu: int
-) -> xr.DataArray:
+def apply_mmu_img(da: xr.DataArray, mmu: int) -> xr.DataArray:
     """
     Fill holes and discards objects smaller than the Minimum Mapping Unit (MMU) in a binary change map
     represented by a 2D DataArray.
@@ -739,7 +777,9 @@ def apply_mmu_img(
     da_new = da_new.where(da != 2, 1)
     da_new = da_new.where(da != 1, 0)
     img_array = da_new.where(da_new != nodata_value, 0).to_numpy()[0]
-    assert ((img_array == 0) | (img_array == 1)).all(), 'Change map must only have 0 and 1 values.'
+    assert (
+        (img_array == 0) | (img_array == 1)
+    ).all(), "Change map must only have 0 and 1 values."
 
     # plus-shaped kernel with radius 1 for morphological operations
     plus_shaped_kernel = ndimage.generate_binary_structure(2, 1)
@@ -750,11 +790,15 @@ def apply_mmu_img(
     # finds all connected components (objects) by superimposing a plus-shaped kernel with radius 1 on each non-zero element of the image
     # labeled_array has the same shape as the input change map, but pixels of each object have a unique integer value
     # num_features is the number of objects found
-    labeled_array, num_features = ndimage.label(img_array_neg, structure=plus_shaped_kernel)
+    labeled_array, num_features = ndimage.label(
+        img_array_neg, structure=plus_shaped_kernel
+    )
 
     # sums values in the change map inside the regions defined by labels (i.e. inside objects)
     # objects_areas contains the number of pixels (i.e. the area) inside each object
-    objects_areas = ndimage.sum(img_array_neg, labels=labeled_array, index=np.arange(num_features + 1))
+    objects_areas = ndimage.sum(
+        img_array_neg, labels=labeled_array, index=np.arange(num_features + 1)
+    )
 
     # fills only objects smaller than (or equal to) the mmu
     mask = objects_areas <= mmu
@@ -773,7 +817,9 @@ def apply_mmu_img(
     # same as above, but to find objects larger than (or equal to) the mmu
     labeled_array, num_features = ndimage.label(img_array, structure=plus_shaped_kernel)
 
-    objects_areas = ndimage.sum(img_array, labels=labeled_array, index=np.arange(num_features + 1))
+    objects_areas = ndimage.sum(
+        img_array, labels=labeled_array, index=np.arange(num_features + 1)
+    )
 
     # keeps only objects larger than (or equal to) the mmu
     mask = objects_areas >= mmu
@@ -802,8 +848,19 @@ def apply_mmu_img(
 
 
 @retry(RuntimeError, tries=10, delay=2)
-def compute_change(magnitude, th, fn_path, save_path, save_path_cog, stac_epsg, epsg, save_flag, clip_geometry,
-                   overwrite, mmu=1):
+def compute_change(
+    magnitude,
+    th,
+    fn_path,
+    save_path,
+    save_path_cog,
+    stac_epsg,
+    epsg,
+    save_flag,
+    clip_geometry,
+    overwrite,
+    mmu=1,
+):
     """
 
     This method takes the results of calculate_magnitude_trio function (implementation of 3I3D algorithm for the SVC-S4-7b)
@@ -848,7 +905,9 @@ def compute_change(magnitude, th, fn_path, save_path, save_path_cog, stac_epsg, 
 
     change = xr.where((magnitude >= th), 2, 1)
     change = change.where(~magnitude_isna, 3)
-    change = change.rio.write_crs('EPSG:{}'.format(stac_epsg)).rio.reproject('EPSG:{}'.format(epsg), nodata=255)
+    change = change.rio.write_crs("EPSG:{}".format(stac_epsg)).rio.reproject(
+        "EPSG:{}".format(epsg), nodata=255
+    )
 
     change = apply_fnf_mask(change, fn_path, epsg)
 
@@ -856,14 +915,16 @@ def compute_change(magnitude, th, fn_path, save_path, save_path_cog, stac_epsg, 
     # change = change.fillna(255)
     # change.rio.set_nodata(255)
 
-    #Optionally applys the MMU
+    # Optionally applys the MMU
     if mmu > 1:
         change = apply_mmu_img(da=change, mmu=mmu)
 
     if save_flag and (overwrite or (not os.path.exists(save_path))):
         try:
             if change.shape[0] == 0 or change.shape[1] == 0:
-                raise ValueError("Dimension of 3I3D output is null, cannot create geotiff file.")
+                raise ValueError(
+                    "Dimension of 3I3D output is null, cannot create geotiff file."
+                )
 
             # clips the result on the provided area of interest
             if clip_geometry is not None:
@@ -882,8 +943,17 @@ def compute_change(magnitude, th, fn_path, save_path, save_path_cog, stac_epsg, 
 
 
 @retry(RuntimeError, tries=10, delay=2)
-def compute_classification(magnitude, fn_path, save_path, save_path_cog, stac_epsg, epsg, save_flag, clip_geometry,
-                           overwrite):
+def compute_classification(
+    magnitude,
+    fn_path,
+    save_path,
+    save_path_cog,
+    stac_epsg,
+    epsg,
+    save_flag,
+    clip_geometry,
+    overwrite,
+):
     """
 
     Compute Classification
@@ -910,11 +980,10 @@ def compute_classification(magnitude, fn_path, save_path, save_path_cog, stac_ep
 
     """
     if (not os.path.exists(save_path)) or overwrite:
-
-        class0 = (magnitude <= 170)
+        class0 = magnitude <= 170
         class1 = (magnitude > 170) * (magnitude <= 190)
         class2 = (magnitude > 190) * (magnitude <= 210)
-        class3 = (magnitude > 210)
+        class3 = magnitude > 210
         classna = magnitude.isnull()
 
         classes = xr.where(class0, 0, magnitude)
@@ -923,13 +992,17 @@ def compute_classification(magnitude, fn_path, save_path, save_path_cog, stac_ep
         classes = xr.where(class3, 3, classes)
         classes = xr.where(classna, 4, classes)
 
-        classes = classes.rio.write_crs('EPSG:{}'.format(stac_epsg)).rio.reproject('EPSG:{}'.format(epsg), nodata=255)
+        classes = classes.rio.write_crs("EPSG:{}".format(stac_epsg)).rio.reproject(
+            "EPSG:{}".format(epsg), nodata=255
+        )
         classes = apply_fnf_mask(classes, fn_path, epsg)
 
         if save_flag and (overwrite or (not os.path.exists(save_path))):
             try:
                 if classes.shape[0] == 0 or classes.shape[1] == 0:
-                    raise ValueError("Dimension of 3I3D output is null, cannot create geotiff file.")
+                    raise ValueError(
+                        "Dimension of 3I3D output is null, cannot create geotiff file."
+                    )
 
                 # clips the result on the provided area of interest
                 if clip_geometry is not None:
@@ -948,7 +1021,7 @@ def compute_classification(magnitude, fn_path, save_path, save_path_cog, stac_ep
             except ValueError as e:
                 print(f"Validation error: {e}")
     else:
-        classes = rio.open_rasterio(save_path).chunk('auto').compute()
+        classes = rio.open_rasterio(save_path).chunk("auto").compute()
     # classes = classes.compute()
 
     return classes
@@ -1012,8 +1085,17 @@ def ufunc_reclassify(value, table):
 
 
 @retry(RuntimeError, tries=10, delay=2)
-def compute_vulnerability(classes, ft_path, ft_cod_path, save_path, save_path_cog, epsg, save_flag, clip_geometry,
-                          overwrite):
+def compute_vulnerability(
+    classes,
+    ft_path,
+    ft_cod_path,
+    save_path,
+    save_path_cog,
+    epsg,
+    save_flag,
+    clip_geometry,
+    overwrite,
+):
     """
 
     This method computes vulnerability based on the given inputs and saves the result as a GeoTIFF file.
@@ -1037,25 +1119,31 @@ def compute_vulnerability(classes, ft_path, ft_cod_path, save_path, save_path_co
 
     """
     classes.rio.set_nodata(255)
-    classes = classes.to_dataset('band')
+    classes = classes.to_dataset("band")
 
     classified_fha_data = xr.where(classes == 255, 255, classes + 1)
     classified_fha_data = classified_fha_data.rio.write_crs(classes.rio.crs)
-    classified_fha_data[1] = classified_fha_data[1].astype('int64')
+    classified_fha_data[1] = classified_fha_data[1].astype("int64")
 
     ft_raster = rio.open_rasterio(ft_path)
-    ft_raster = ft_raster.to_dataset('band')
+    ft_raster = ft_raster.to_dataset("band")
 
-    classified_fha_data_repr = classified_fha_data.rio.reproject_match(ft_raster,
-                                                                       resampling=rasterio.enums.Resampling.bilinear)
-    classified_fha_resampled = classified_fha_data_repr.assign_coords({
-        "x": ft_raster.x,
-        "y": ft_raster.y,
-    })
+    classified_fha_data_repr = classified_fha_data.rio.reproject_match(
+        ft_raster, resampling=rasterio.enums.Resampling.bilinear
+    )
+    classified_fha_resampled = classified_fha_data_repr.assign_coords(
+        {
+            "x": ft_raster.x,
+            "y": ft_raster.y,
+        }
+    )
 
-    classified_fha_resampled = classified_fha_resampled.rio.clip_box(*classified_fha_data.rio.bounds(),
-                                                                     crs=classified_fha_data.rio.crs)
-    ft_raster = ft_raster.rio.clip_box(*classified_fha_data.rio.bounds(), crs=classified_fha_data.rio.crs)
+    classified_fha_resampled = classified_fha_resampled.rio.clip_box(
+        *classified_fha_data.rio.bounds(), crs=classified_fha_data.rio.crs
+    )
+    ft_raster = ft_raster.rio.clip_box(
+        *classified_fha_data.rio.bounds(), crs=classified_fha_data.rio.crs
+    )
 
     cond1 = (classified_fha_resampled > 0) & (classified_fha_resampled <= 1)
     cond2 = (classified_fha_resampled > 1) & (classified_fha_resampled <= 2)
@@ -1071,30 +1159,37 @@ def compute_vulnerability(classes, ft_path, ft_cod_path, save_path, save_path_co
     cmask_raster_FHA = xr.where(cond5, 5, cmask_raster_FHA)
     cmask_raster_FHA = xr.where(cond6, 255, cmask_raster_FHA)
 
-    masked_ft = xr.where(classified_fha_resampled != 255, ft_raster.astype('int64'), 255)
+    masked_ft = xr.where(
+        classified_fha_resampled != 255, ft_raster.astype("int64"), 255
+    )
     overlapped_raster = (masked_ft + 10) ** cmask_raster_FHA
 
     df_cat_ft = pd.read_excel(ft_cod_path)
-    keys = df_cat_ft['Num_ID'].values
-    values = df_cat_ft['ID'].values
+    keys = df_cat_ft["Num_ID"].values
+    values = df_cat_ft["ID"].values
     correspondence_table = {key: value for key, value in zip(keys, values)}
 
-    vulnerability = xr.apply_ufunc(ufunc_reclassify,
-                                   overlapped_raster[1],
-                                   kwargs={'table': correspondence_table},
-                                   vectorize=True,
-                                   input_core_dims=[[]],
-                                   dask='parallelized',
-                                   output_dtypes=['float64'])
+    vulnerability = xr.apply_ufunc(
+        ufunc_reclassify,
+        overlapped_raster[1],
+        kwargs={"table": correspondence_table},
+        vectorize=True,
+        input_core_dims=[[]],
+        dask="parallelized",
+        output_dtypes=["float64"],
+    )
 
-    vulnerability = vulnerability.rio.write_crs(classified_fha_resampled.rio.crs).rio.reproject('EPSG:{}'.format(epsg),
-                                                                                                nodata=255)
-    vulnerability = vulnerability.to_dataset().rename({1: 'vulnerability'})
+    vulnerability = vulnerability.rio.write_crs(
+        classified_fha_resampled.rio.crs
+    ).rio.reproject("EPSG:{}".format(epsg), nodata=255)
+    vulnerability = vulnerability.to_dataset().rename({1: "vulnerability"})
 
     if save_flag and (overwrite or (not os.path.exists(save_path))):
         try:
             if len(vulnerability.x) == 0 or len(vulnerability.y) == 0:
-                raise ValueError("Dimension of 3I3D output is null, cannot create geotiff file.")
+                raise ValueError(
+                    "Dimension of 3I3D output is null, cannot create geotiff file."
+                )
 
             # clips the result on the provided area of interest
             if clip_geometry is not None:
@@ -1133,16 +1228,23 @@ def save_input_zarr(ds_list, path_list, overwrite, clip_geometry, epsg):
     """
     for ds, path in zip(ds_list, path_list):
         if (not os.path.exists(path)) or overwrite:
-            ds = coords_to_attrs(ds, excluded=['id'])
-            ds.attrs['spec'] = str(ds.attrs['spec'])
+            ds = coords_to_attrs(ds, excluded=["id"])
+            ds.attrs["spec"] = str(ds.attrs["spec"])
             if clip_geometry is not None:
-                ds = ds.rio.write_crs('EPSG:{}'.format(epsg)).astype('float32').rio.clip_box(
-                    minx=clip_geometry.bounds.minx,
-                    miny=clip_geometry.bounds.miny,
-                    maxx=clip_geometry.bounds.maxx,
-                    maxy=clip_geometry.bounds.maxy,
-                    crs=clip_geometry.crs)
-            ds.chunk({'time': 1, 'x': 1024, 'y': 1024}).to_zarr(path, mode='w' if overwrite else None)
+                ds = (
+                    ds.rio.write_crs("EPSG:{}".format(epsg))
+                    .astype("float32")
+                    .rio.clip_box(
+                        minx=clip_geometry.bounds.minx,
+                        miny=clip_geometry.bounds.miny,
+                        maxx=clip_geometry.bounds.maxx,
+                        maxy=clip_geometry.bounds.maxy,
+                        crs=clip_geometry.crs,
+                    )
+                )
+            ds.chunk({"time": 1, "x": 1024, "y": 1024}).to_zarr(
+                path, mode="w" if overwrite else None
+            )
 
 
 def save_cog(input_tif, output_tif):
@@ -1189,32 +1291,33 @@ class health_assessment:
     :param overwrite: Overwrite existing results if True
     :param log_level: Logging level (debug, info, warning, error, critical)
     """
-    def __init__(
-            self,
-            start_date_pre: pd.Timestamp,
-            end_date_pre: pd.Timestamp,
-            start_date_mid: pd.Timestamp,
-            end_date_mid: pd.Timestamp,
-            start_date_post: pd.Timestamp,
-            end_date_post: pd.Timestamp,
-            aoi: dict,
-            clip_geometry,
-            mgrs_tile: str,
-            epsg: int,
-            cloudcover: float,
-            save_to_disk: dict,
-            results_path: str,
-            aoi_name: str,
-            assessment_kind: str,
-            chain: str,
-            fn_path: str,
-            ft_path: str,
-            ft_cod_path: str,
-            th: float = 224,
-            mmu: int = 1,
-            overwrite: bool = False,
-            log_level: str = 'warning'):
 
+    def __init__(
+        self,
+        start_date_pre: pd.Timestamp,
+        end_date_pre: pd.Timestamp,
+        start_date_mid: pd.Timestamp,
+        end_date_mid: pd.Timestamp,
+        start_date_post: pd.Timestamp,
+        end_date_post: pd.Timestamp,
+        aoi: dict,
+        clip_geometry,
+        mgrs_tile: str,
+        epsg: int,
+        cloudcover: float,
+        save_to_disk: dict,
+        results_path: str,
+        aoi_name: str,
+        assessment_kind: str,
+        chain: str,
+        fn_path: str,
+        ft_path: str,
+        ft_cod_path: str,
+        th: float = 224,
+        mmu: int = 1,
+        overwrite: bool = False,
+        log_level: str = "warning",
+    ):
         self.start_date_pre = start_date_pre
         self.end_date_pre = end_date_pre
         self.start_date_mid = start_date_mid
@@ -1240,204 +1343,327 @@ class health_assessment:
 
         self.logger = initialize_logger()
 
-        if log_level == 'debug':
+        if log_level == "debug":
             self.logger.setLevel(logging.DEBUG)
-        elif log_level == 'info':
+        elif log_level == "info":
             self.logger.setLevel(logging.INFO)
-        elif log_level == 'warning':
+        elif log_level == "warning":
             self.logger.setLevel(logging.WARNING)
-        elif log_level == 'error':
+        elif log_level == "error":
             self.logger.setLevel(logging.ERROR)
-        elif log_level == 'critical':
+        elif log_level == "critical":
             self.logger.setLevel(logging.CRITICAL)
 
         # collection to query
-        self.collections = ['sentinel-2-l2a']
+        self.collections = ["sentinel-2-l2a"]
 
         # query to select a cloud cover threshold and a specific tile
-        self.query = {"eo:cloud_cover": {"lt": self.cloudcover},
-                      "s2:mgrs_tile": {"in": self.mgrs_tile}}
+        self.query = {
+            "eo:cloud_cover": {"lt": self.cloudcover},
+            "s2:mgrs_tile": {"in": self.mgrs_tile},
+        }
 
         # bands of interest
-        self.assets = ['B02', 'B03', 'B04', 'B05', 'B06', 'B07', 'B08', 'B8A', 'B09', 'B11', 'B12', 'SCL']
+        self.assets = [
+            "B02",
+            "B03",
+            "B04",
+            "B05",
+            "B06",
+            "B07",
+            "B08",
+            "B8A",
+            "B09",
+            "B11",
+            "B12",
+            "SCL",
+        ]
         # spatial resolution (meters)
         self.resolution = 10
         # nodata value for Sentinel-2 L2A
         self.nodata = 0
 
         # save flags
-        self.save_input_dataset = self.save_to_disk['save_input_dataset']
-        self.save_medoid_pre = self.save_to_disk['save_medoid_pre']
-        self.save_medoid_post = self.save_to_disk['save_medoid_post']
-        self.save_indexes_pre = self.save_to_disk['save_indexes_pre']
-        self.save_indexes_post = self.save_to_disk['save_indexes_post']
-        self.save_classification = self.save_to_disk['save_classification']
+        self.save_input_dataset = self.save_to_disk["save_input_dataset"]
+        self.save_medoid_pre = self.save_to_disk["save_medoid_pre"]
+        self.save_medoid_post = self.save_to_disk["save_medoid_post"]
+        self.save_indexes_pre = self.save_to_disk["save_indexes_pre"]
+        self.save_indexes_post = self.save_to_disk["save_indexes_post"]
+        self.save_classification = self.save_to_disk["save_classification"]
 
         # data directories
-        self.input_dir = os.path.join(self.results_path, 'input')
-        self.temporary_dir = os.path.join(self.results_path, 'temp')
-        self.output_dir = os.path.join(self.results_path, 'output')
-        self.fhm_dir = os.path.join(self.output_dir, 'FHM')
-        self.fcm_dir = os.path.join(self.output_dir, 'FCM')
-        self.fv_dir = os.path.join(self.output_dir, 'FV')
-        self.fhm_dir_cog = os.path.join(self.output_dir, 'FHM', 'COG')
-        self.fcm_dir_cog = os.path.join(self.output_dir, 'FCM', 'COG')
-        self.fv_dir_cog = os.path.join(self.output_dir, 'FV', 'COG')
-        self.magnitude_dir = os.path.join(self.temporary_dir, 'magnitude')
-        self.sentinel_dir = os.path.join(self.temporary_dir, 'sentinel_input')
+        self.input_dir = os.path.join(self.results_path, "input")
+        self.temporary_dir = os.path.join(self.results_path, "temp")
+        self.output_dir = os.path.join(self.results_path, "output")
+        self.fhm_dir = os.path.join(self.output_dir, "FHM")
+        self.fcm_dir = os.path.join(self.output_dir, "FCM")
+        self.fv_dir = os.path.join(self.output_dir, "FV")
+        self.fhm_dir_cog = os.path.join(self.output_dir, "FHM", "COG")
+        self.fcm_dir_cog = os.path.join(self.output_dir, "FCM", "COG")
+        self.fv_dir_cog = os.path.join(self.output_dir, "FV", "COG")
+        self.magnitude_dir = os.path.join(self.temporary_dir, "magnitude")
+        self.sentinel_dir = os.path.join(self.temporary_dir, "sentinel_input")
 
         # time range for the queries
-        self.time_range_pre = self.start_date_pre.strftime('%Y-%m-%d') + '/' + self.end_date_pre.strftime('%Y-%m-%d')
-        self.time_range_post = self.start_date_post.strftime('%Y-%m-%d') + '/' + self.end_date_post.strftime('%Y-%m-%d')
+        self.time_range_pre = (
+            self.start_date_pre.strftime("%Y-%m-%d")
+            + "/"
+            + self.end_date_pre.strftime("%Y-%m-%d")
+        )
+        self.time_range_post = (
+            self.start_date_post.strftime("%Y-%m-%d")
+            + "/"
+            + self.end_date_post.strftime("%Y-%m-%d")
+        )
 
-        self.logger.debug('Pre time range: {}'.format(self.time_range_pre))
-        self.logger.debug('Post time range: {}'.format(self.time_range_post))
+        self.logger.debug("Pre time range: {}".format(self.time_range_pre))
+        self.logger.debug("Post time range: {}".format(self.time_range_post))
 
         # defines products names
-        self.svc_number = self.chain.replace('SVC', '')[:2]
-        self.svc_letter = self.chain.replace('SVC', '')[-1]
-        if (self.svc_number == '10' and self.assessment_kind == 'weekly'):
-            self.product_number = '01'
-        elif (self.svc_number == '10' and self.assessment_kind == 'yearly') or (
-                self.svc_number == '07' and self.svc_letter == 'B'):
-            self.product_number = '02'
-        elif (self.svc_number == '07' and self.svc_letter == 'C'):
-            self.product_number = '03'
-        self.product_id = 'OU-S4' + '-{}'.format(self.svc_number) + '-{}'.format(self.product_number)
+        self.svc_number = self.chain.replace("SVC", "")[:2]
+        self.svc_letter = self.chain.replace("SVC", "")[-1]
+        if self.svc_number == "10" and self.assessment_kind == "weekly":
+            self.product_number = "01"
+        elif (self.svc_number == "10" and self.assessment_kind == "yearly") or (
+            self.svc_number == "07" and self.svc_letter == "B"
+        ):
+            self.product_number = "02"
+        elif self.svc_number == "07" and self.svc_letter == "C":
+            self.product_number = "03"
+        self.product_id = (
+            "OU-S4" + "-{}".format(self.svc_number) + "-{}".format(self.product_number)
+        )
 
-        self.start_date_pre_filename = str(self.start_date_pre.date()).replace('-', '')
-        self.end_date_pre_filename = str(self.end_date_pre.date()).replace('-', '')
-        self.start_date_post_filename = str(self.start_date_post.date()).replace('-', '')
-        self.end_date_post_filename = str(self.end_date_post.date()).replace('-', '')
+        self.start_date_pre_filename = str(self.start_date_pre.date()).replace("-", "")
+        self.end_date_pre_filename = str(self.end_date_pre.date()).replace("-", "")
+        self.start_date_post_filename = str(self.start_date_post.date()).replace(
+            "-", ""
+        )
+        self.end_date_post_filename = str(self.end_date_post.date()).replace("-", "")
 
-        self.sentinel_pre_filename = os.path.join(self.sentinel_dir, 'ds_{}_{}.zarr'.format(self.aoi_name,
-                                                                                            self.time_range_pre.replace(
-                                                                                                '/', '_')))
-        self.sentinel_post_filename = os.path.join(self.sentinel_dir, 'ds_{}_{}.zarr'.format(self.aoi_name,
-                                                                                             self.time_range_post.replace(
-                                                                                                 '/', '_')))
+        self.sentinel_pre_filename = os.path.join(
+            self.sentinel_dir,
+            "ds_{}_{}.zarr".format(
+                self.aoi_name, self.time_range_pre.replace("/", "_")
+            ),
+        )
+        self.sentinel_post_filename = os.path.join(
+            self.sentinel_dir,
+            "ds_{}_{}.zarr".format(
+                self.aoi_name, self.time_range_post.replace("/", "_")
+            ),
+        )
 
-        self.medoid_pre_filename = os.path.join(self.input_dir,
-                                                '{}_{}_{}_pre_medoid.tif'.format(aoi_name, self.start_date_pre_filename,
-                                                                                 self.end_date_pre_filename))
-        self.medoid_post_filename = os.path.join(self.input_dir, '{}_{}_{}_post_medoid.tif'.format(aoi_name,
-                                                                                                   self.start_date_post_filename,
-                                                                                                   self.end_date_post_filename))
+        self.medoid_pre_filename = os.path.join(
+            self.input_dir,
+            "{}_{}_{}_pre_medoid.tif".format(
+                aoi_name, self.start_date_pre_filename, self.end_date_pre_filename
+            ),
+        )
+        self.medoid_post_filename = os.path.join(
+            self.input_dir,
+            "{}_{}_{}_post_medoid.tif".format(
+                aoi_name, self.start_date_post_filename, self.end_date_post_filename
+            ),
+        )
 
-        self.ndmi_pre_filename = os.path.join(self.input_dir,
-                                              '{}_{}_pre_ndmi.tif'.format(aoi_name, self.start_date_pre_filename))
-        self.nbr_pre_filename = os.path.join(self.input_dir,
-                                             '{}_{}_pre_nbr.tif'.format(aoi_name, self.start_date_pre_filename))
-        self.msi_pre_filename = os.path.join(self.input_dir,
-                                             '{}_{}_pre_msi.tif'.format(aoi_name, self.start_date_pre_filename))
-        self.ndmi_post_filename = os.path.join(self.input_dir,
-                                               '{}_{}_post_ndmi.tif'.format(aoi_name, self.start_date_post_filename))
-        self.nbr_post_filename = os.path.join(self.input_dir,
-                                              '{}_{}_post_nbr.tif'.format(aoi_name, self.start_date_post_filename))
-        self.msi_post_filename = os.path.join(self.input_dir,
-                                              '{}_{}_post_msi.tif'.format(aoi_name, self.start_date_post_filename))
+        self.ndmi_pre_filename = os.path.join(
+            self.input_dir,
+            "{}_{}_pre_ndmi.tif".format(aoi_name, self.start_date_pre_filename),
+        )
+        self.nbr_pre_filename = os.path.join(
+            self.input_dir,
+            "{}_{}_pre_nbr.tif".format(aoi_name, self.start_date_pre_filename),
+        )
+        self.msi_pre_filename = os.path.join(
+            self.input_dir,
+            "{}_{}_pre_msi.tif".format(aoi_name, self.start_date_pre_filename),
+        )
+        self.ndmi_post_filename = os.path.join(
+            self.input_dir,
+            "{}_{}_post_ndmi.tif".format(aoi_name, self.start_date_post_filename),
+        )
+        self.nbr_post_filename = os.path.join(
+            self.input_dir,
+            "{}_{}_post_nbr.tif".format(aoi_name, self.start_date_post_filename),
+        )
+        self.msi_post_filename = os.path.join(
+            self.input_dir,
+            "{}_{}_post_msi.tif".format(aoi_name, self.start_date_post_filename),
+        )
 
-        if self.assessment_kind == 'weekly':
-            self.start_date_pre_filename = str((self.start_date_pre + pd.DateOffset(days=+14)).date()).replace('-', '')
-            self.end_date_post_filename = str((self.start_date_pre + pd.DateOffset(days=+21)).date()).replace('-', '')
+        if self.assessment_kind == "weekly":
+            self.start_date_pre_filename = str(
+                (self.start_date_pre + pd.DateOffset(days=+14)).date()
+            ).replace("-", "")
+            self.end_date_post_filename = str(
+                (self.start_date_pre + pd.DateOffset(days=+21)).date()
+            ).replace("-", "")
 
-        self.magnitude_filename = os.path.join(self.magnitude_dir,
-                                               self.product_id + '_Magnitude' + '_1{}'.format(assessment_kind[0]) +
-                                               '_{}'.format(aoi_name) + '_{}T000000'.format(
-                                                   self.start_date_pre_filename) +
-                                               '_{}T000000'.format(self.end_date_post_filename) + '.tif')
+        self.magnitude_filename = os.path.join(
+            self.magnitude_dir,
+            self.product_id
+            + "_Magnitude"
+            + "_1{}".format(assessment_kind[0])
+            + "_{}".format(aoi_name)
+            + "_{}T000000".format(self.start_date_pre_filename)
+            + "_{}T000000".format(self.end_date_post_filename)
+            + ".tif",
+        )
 
-        self.classes_filename = os.path.join(self.fhm_dir,
-                                             self.product_id + '_ForestHealthMap' + '_1{}'.format(assessment_kind[0]) +
-                                             '_{}'.format(aoi_name) + '_{}T000000'.format(
-                                                 self.start_date_pre_filename) +
-                                             '_{}T000000'.format(self.end_date_post_filename) + '.tif')
+        self.classes_filename = os.path.join(
+            self.fhm_dir,
+            self.product_id
+            + "_ForestHealthMap"
+            + "_1{}".format(assessment_kind[0])
+            + "_{}".format(aoi_name)
+            + "_{}T000000".format(self.start_date_pre_filename)
+            + "_{}T000000".format(self.end_date_post_filename)
+            + ".tif",
+        )
 
-        self.classes_filename_cog = os.path.join(self.fhm_dir_cog, self.product_id + '_ForestHealthMap' + '_1{}'.format(
-            assessment_kind[0]) +
-                                                 '_{}'.format(aoi_name) + '_{}T000000'.format(
-            self.start_date_pre_filename) +
-                                                 '_{}T000000'.format(self.end_date_post_filename) + '.tif')
+        self.classes_filename_cog = os.path.join(
+            self.fhm_dir_cog,
+            self.product_id
+            + "_ForestHealthMap"
+            + "_1{}".format(assessment_kind[0])
+            + "_{}".format(aoi_name)
+            + "_{}T000000".format(self.start_date_pre_filename)
+            + "_{}T000000".format(self.end_date_post_filename)
+            + ".tif",
+        )
 
-        self.vulnerability_filename = os.path.join(self.fv_dir,
-                                                   self.product_id + '_ForestVulnerabilityMap' + '_1{}'.format(
-                                                       assessment_kind[0]) +
-                                                   '_{}'.format(aoi_name) + '_{}T000000'.format(
-                                                       self.start_date_pre_filename) +
-                                                   '_{}T000000'.format(self.end_date_post_filename) + '.tif')
+        self.vulnerability_filename = os.path.join(
+            self.fv_dir,
+            self.product_id
+            + "_ForestVulnerabilityMap"
+            + "_1{}".format(assessment_kind[0])
+            + "_{}".format(aoi_name)
+            + "_{}T000000".format(self.start_date_pre_filename)
+            + "_{}T000000".format(self.end_date_post_filename)
+            + ".tif",
+        )
 
-        self.vulnerability_filename_cog = os.path.join(self.fv_dir_cog,
-                                                       self.product_id + '_ForestVulnerabilityMap' + '_1{}'.format(
-                                                           assessment_kind[0]) +
-                                                       '_{}'.format(aoi_name) + '_{}T000000'.format(
-                                                           self.start_date_pre_filename) +
-                                                       '_{}T000000'.format(self.end_date_post_filename) + '.tif')
+        self.vulnerability_filename_cog = os.path.join(
+            self.fv_dir_cog,
+            self.product_id
+            + "_ForestVulnerabilityMap"
+            + "_1{}".format(assessment_kind[0])
+            + "_{}".format(aoi_name)
+            + "_{}T000000".format(self.start_date_pre_filename)
+            + "_{}T000000".format(self.end_date_post_filename)
+            + ".tif",
+        )
 
         self.time_ranges = [self.time_range_pre, self.time_range_post]
-        self.sentinel_path_list = [self.sentinel_pre_filename, self.sentinel_post_filename]
+        self.sentinel_path_list = [
+            self.sentinel_pre_filename,
+            self.sentinel_post_filename,
+        ]
         self.start_dates = [self.start_date_pre, self.start_date_post]
         self.end_dates = [self.end_date_pre, self.end_date_post]
         self.medoid_paths = [self.medoid_pre_filename, self.medoid_post_filename]
         self.medoid_flags = [self.save_medoid_pre, self.save_medoid_post]
-        self.indexes_pre_filename = [self.ndmi_pre_filename, self.nbr_pre_filename, self.msi_pre_filename]
-        self.indexes_post_filename = [self.ndmi_post_filename, self.nbr_post_filename, self.msi_post_filename]
+        self.indexes_pre_filename = [
+            self.ndmi_pre_filename,
+            self.nbr_pre_filename,
+            self.msi_pre_filename,
+        ]
+        self.indexes_post_filename = [
+            self.ndmi_post_filename,
+            self.nbr_post_filename,
+            self.msi_post_filename,
+        ]
         self.index_paths = [self.indexes_pre_filename, self.indexes_post_filename]
         self.index_flags = [self.save_indexes_pre, self.save_indexes_post]
 
         # in the case of SVC07B also third image and additional operations are needed
-        if self.chain == 'SVC07B':
+        if self.chain == "SVC07B":
             self.th = th
             self.mmu = mmu
-            self.time_range_mid = self.start_date_mid.strftime('%Y-%m-%d') + '/' + self.end_date_mid.strftime(
-                '%Y-%m-%d')
-            self.logger.debug('Mid time range: {}'.format(self.time_range_mid))
-            self.save_medoid_mid = self.save_to_disk['save_medoid_mid']
-            self.save_indexes_mid = self.save_to_disk['save_indexes_mid']
-            self.start_date_mid_filename = str(self.start_date_mid.date()).replace('-', '')
-            self.end_date_mid_filename = str(self.end_date_mid.date()).replace('-', '')
-            self.sentinel_mid_filename = os.path.join(self.sentinel_dir, 'ds_{}_{}.zarr'.format(self.aoi_name,
-                                                                                                self.time_range_mid.replace(
-                                                                                                    '/', '_')))
-            self.medoid_mid_filename = os.path.join(self.input_dir, '{}_{}_{}_mid_medoid.tif'.format(self.aoi_name,
-                                                                                                     self.start_date_mid_filename,
-                                                                                                     self.end_date_mid_filename))
-            self.ndmi_mid_filename = os.path.join(self.input_dir,
-                                                  '{}_{}_mid_ndmi.tif'.format(aoi_name, self.start_date_mid_filename))
-            self.nbr_mid_filename = os.path.join(self.input_dir,
-                                                 '{}_{}_mid_nbr.tif'.format(aoi_name, self.start_date_mid_filename))
-            self.msi_mid_filename = os.path.join(self.input_dir,
-                                                 '{}_{}_mid_msi.tif'.format(aoi_name, self.start_date_mid_filename))
+            self.time_range_mid = (
+                self.start_date_mid.strftime("%Y-%m-%d")
+                + "/"
+                + self.end_date_mid.strftime("%Y-%m-%d")
+            )
+            self.logger.debug("Mid time range: {}".format(self.time_range_mid))
+            self.save_medoid_mid = self.save_to_disk["save_medoid_mid"]
+            self.save_indexes_mid = self.save_to_disk["save_indexes_mid"]
+            self.start_date_mid_filename = str(self.start_date_mid.date()).replace(
+                "-", ""
+            )
+            self.end_date_mid_filename = str(self.end_date_mid.date()).replace("-", "")
+            self.sentinel_mid_filename = os.path.join(
+                self.sentinel_dir,
+                "ds_{}_{}.zarr".format(
+                    self.aoi_name, self.time_range_mid.replace("/", "_")
+                ),
+            )
+            self.medoid_mid_filename = os.path.join(
+                self.input_dir,
+                "{}_{}_{}_mid_medoid.tif".format(
+                    self.aoi_name,
+                    self.start_date_mid_filename,
+                    self.end_date_mid_filename,
+                ),
+            )
+            self.ndmi_mid_filename = os.path.join(
+                self.input_dir,
+                "{}_{}_mid_ndmi.tif".format(aoi_name, self.start_date_mid_filename),
+            )
+            self.nbr_mid_filename = os.path.join(
+                self.input_dir,
+                "{}_{}_mid_nbr.tif".format(aoi_name, self.start_date_mid_filename),
+            )
+            self.msi_mid_filename = os.path.join(
+                self.input_dir,
+                "{}_{}_mid_msi.tif".format(aoi_name, self.start_date_mid_filename),
+            )
 
             self.time_ranges = self.time_ranges + [self.time_range_mid]
-            self.sentinel_path_list = self.sentinel_path_list + [self.sentinel_mid_filename]
+            self.sentinel_path_list = self.sentinel_path_list + [
+                self.sentinel_mid_filename
+            ]
             self.start_dates = self.start_dates + [self.start_date_mid]
             self.end_dates = self.end_dates + [self.end_date_mid]
             self.medoid_paths = self.medoid_paths + [self.medoid_mid_filename]
             self.medoid_flags = self.medoid_flags + [self.save_medoid_mid]
-            self.indexes_mid_filename = [self.ndmi_mid_filename, self.nbr_mid_filename, self.msi_mid_filename]
+            self.indexes_mid_filename = [
+                self.ndmi_mid_filename,
+                self.nbr_mid_filename,
+                self.msi_mid_filename,
+            ]
             self.index_paths = self.index_paths + [self.indexes_mid_filename]
             self.index_flags = self.index_flags + [self.save_indexes_mid]
 
-            self.change_filename = os.path.join(self.fcm_dir,
-                                                self.product_id + '_ForestChangeMap' + '_1{}'.format(
-                                                    assessment_kind[0]) +
-                                                '_{}'.format(aoi_name) + '_{}T000000'.format(
-                                                    self.start_date_mid_filename) +
-                                                '_{}T000000'.format(self.end_date_mid_filename) + '.tif')
+            self.change_filename = os.path.join(
+                self.fcm_dir,
+                self.product_id
+                + "_ForestChangeMap"
+                + "_1{}".format(assessment_kind[0])
+                + "_{}".format(aoi_name)
+                + "_{}T000000".format(self.start_date_mid_filename)
+                + "_{}T000000".format(self.end_date_mid_filename)
+                + ".tif",
+            )
 
-            self.change_filename_cog = os.path.join(self.fcm_dir_cog,
-                                                    self.product_id + '_ForestChangeMap' + '_1{}'.format(
-                                                        assessment_kind[0]) +
-                                                    '_{}'.format(aoi_name) + '_{}T000000'.format(
-                                                        self.start_date_mid_filename) +
-                                                    '_{}T000000'.format(self.end_date_mid_filename) + '.tif')
+            self.change_filename_cog = os.path.join(
+                self.fcm_dir_cog,
+                self.product_id
+                + "_ForestChangeMap"
+                + "_1{}".format(assessment_kind[0])
+                + "_{}".format(aoi_name)
+                + "_{}T000000".format(self.start_date_mid_filename)
+                + "_{}T000000".format(self.end_date_mid_filename)
+                + ".tif",
+            )
 
         # flag that allows to skip time ranges that have already been completed
         self.skip_timerange = False
-        if (self.chain in ['SVC07C', 'SVC10C']) and (self.assessment_kind == 'yearly'):
+        if (self.chain in ["SVC07C", "SVC10C"]) and (self.assessment_kind == "yearly"):
             if os.path.exists(self.vulnerability_filename):
                 self.skip_timerange = True
-        elif self.chain == 'SVC07B':
+        elif self.chain == "SVC07B":
             if os.path.exists(self.change_filename):
                 self.skip_timerange = True
         else:
@@ -1446,7 +1672,6 @@ class health_assessment:
 
     def create_directories(self):
         """
-
         Method: create_directories
 
         This method creates directories for different purposes based on the provided parameters. It ensures that the directories are created if they don't already exist.
@@ -1462,13 +1687,13 @@ class health_assessment:
         os.makedirs(self.temporary_dir, exist_ok=True)
         os.makedirs(self.output_dir, exist_ok=True)
 
-        if self.chain in ['SVC07B']:
+        if self.chain in ["SVC07B"]:
             os.makedirs(self.fcm_dir, exist_ok=True)
             os.makedirs(self.fcm_dir_cog, exist_ok=True)
-        if self.chain in ['SVC07C', 'SVC10C']:
+        if self.chain in ["SVC07C", "SVC10C"]:
             os.makedirs(self.fhm_dir, exist_ok=True)
             os.makedirs(self.fhm_dir_cog, exist_ok=True)
-            if self.assessment_kind == 'yearly':
+            if self.assessment_kind == "yearly":
                 os.makedirs(self.fv_dir, exist_ok=True)
                 os.makedirs(self.fv_dir_cog, exist_ok=True)
         os.makedirs(self.magnitude_dir, exist_ok=True)
@@ -1489,7 +1714,7 @@ class health_assessment:
         Returns:
             list: A list of xarray datasets representing the prepared Sentinel 2 Level 2A datasets.
         """
-        self.logger.info('Preparing Sentinel 2 L2A datasets.')
+        self.logger.info("Preparing Sentinel 2 L2A datasets.")
         ds_list = []
         # queries sentinel data from Microsoft Planetary
         for time_range, path in zip(self.time_ranges, self.sentinel_path_list):
@@ -1501,7 +1726,7 @@ class health_assessment:
                 assets=self.assets,
                 epsg=self.stac_epsg,
                 resolution=self.resolution,
-                nodata=self.nodata
+                nodata=self.nodata,
             )
             """""
             epsg = ds.rio.crs.to_string()
@@ -1518,11 +1743,16 @@ class health_assessment:
             """
             # saving the input dataset and reading it from disk is more stable for dask delayed computations
             if self.save_input_dataset:
-                save_input_zarr([ds], [path], self.overwrite, self.clip_geometry, self.stac_epsg)
+                save_input_zarr(
+                    [ds], [path], self.overwrite, self.clip_geometry, self.stac_epsg
+                )
 
             ds = xr.open_zarr(path)
-            self.logger.debug('Dataset dimensions: time, x, y = {}, {}, {}'.format(len(ds.time), len(ds.x),
-                                                                                   len(ds.y)))
+            self.logger.debug(
+                "Dataset dimensions: time, x, y = {}, {}, {}".format(
+                    len(ds.time), len(ds.x), len(ds.y)
+                )
+            )
             ds_list.append(ds)
         return ds_list
 
@@ -1535,13 +1765,12 @@ class health_assessment:
         :return: A list of datasets with the baseline adjusted.
         :rtype: list
         """
-        self.logger.info('Adjusting baseline.')
+        self.logger.info("Adjusting baseline.")
         # adjustment for sentinel 2 baseline change
         cutoff = datetime.datetime(2022, 1, 25)
 
         ds_list_harmonized = []
         for ds, start_date, end_date in zip(ds_list, self.start_dates, self.end_dates):
-
             start_before_cutoff = start_date <= cutoff
             start_after_cutoff = start_date > cutoff
             end_before_cutoff = end_date <= cutoff
@@ -1565,19 +1794,21 @@ class health_assessment:
         Returns:
         - ds_list_masked: A list of masked xarray Dataset objects. Each Dataset in the list has been masked.
         """
-        self.logger.info('Masking datasets.')
+        self.logger.info("Masking datasets.")
         # masks the datasets
         ds_list_masked = []
         for ds in ds_list:
-            ds_masked = s2l2a_masked(ds).drop_vars('SCL')
+            ds_masked = s2l2a_masked(ds).drop_vars("SCL")
             ds_list_masked.append(ds_masked)
             epsg = ds.rio.crs.to_string()
             self.clip_geometry = self.clip_geometry.to_crs(epsg)
-            ds_masked = ds_masked.astype('float32').rio.clip_box(minx=self.clip_geometry.bounds.minx,
-                                                                 miny=self.clip_geometry.bounds.miny,
-                                                                 maxx=self.clip_geometry.bounds.maxx,
-                                                                 maxy=self.clip_geometry.bounds.maxy,
-                                                                 crs=self.clip_geometry.crs)
+            ds_masked = ds_masked.astype("float32").rio.clip_box(
+                minx=self.clip_geometry.bounds.minx,
+                miny=self.clip_geometry.bounds.miny,
+                maxx=self.clip_geometry.bounds.maxx,
+                maxy=self.clip_geometry.bounds.maxy,
+                crs=self.clip_geometry.crs,
+            )
             """
             for i, time in enumerate(ds_masked.time.values[:6]):
                 id = ds_masked['id'].values[i]
@@ -1600,18 +1831,21 @@ class health_assessment:
         - ds_list_medoid: list of xarray.Dataset objects. Each dataset represents the computed medoid for the corresponding input dataset.
 
         """
-        self.logger.info('Computing medoids.')
+        self.logger.info("Computing medoids.")
         # computes the medoids
         ds_list_medoid = []
         for ds, path, flag in zip(ds_list, self.medoid_paths, self.medoid_flags):
             if (not os.path.exists(path)) or self.overwrite:
-                self.logger.debug('Computing medoid of times: {}.'.format(ds.time.values))
+                self.logger.debug(
+                    "Computing medoid of times: {}.".format(ds.time.values)
+                )
                 ds_medoid = medoid_mosaic(ds).compute()
                 if flag:
-                    ds_medoid.rio.write_crs('EPSG:{}'.format(self.stac_epsg)).rio.to_raster(path)
+                    ds_medoid.rio.write_crs(
+                        "EPSG:{}".format(self.stac_epsg)
+                    ).rio.to_raster(path)
             else:
-                ds_medoid = rio.open_rasterio(
-                    path)
+                ds_medoid = rio.open_rasterio(path)
             ds_list_medoid.append(ds_medoid)
         return ds_list_medoid
 
@@ -1637,7 +1871,7 @@ class health_assessment:
             RetryError: If the computation of indexes fails after multiple retries.
 
         """
-        self.logger.info('Computing indexes.')
+        self.logger.info("Computing indexes.")
         # calculates and saves the indexes
         ds_list_index = []
         for i, ds, flag in zip(range(len(ds_list)), ds_list, self.index_flags):
@@ -1647,17 +1881,19 @@ class health_assessment:
             ds_list_index.append(msi)
             for index, path in zip([ndmi, nbr, msi], self.index_paths[i]):
                 if flag:
-                    index.rio.write_crs('EPSG:{}'.format(self.stac_epsg)).rio.to_raster(path)
+                    index.rio.write_crs("EPSG:{}".format(self.stac_epsg)).rio.to_raster(
+                        path
+                    )
         return ds_list_index
 
     @retry(RuntimeError, tries=10, delay=2)
     @timed
     def compute_assessment(self):
         """
-        This method is the entry point for computing the assessment of """
+        This method is the entry point for computing the assessment of"""
         # skips time ranges that have already been completed
         if self.skip_timerange:
-            self.logger.debug('Skipping time range.')
+            self.logger.debug("Skipping time range.")
             return
 
         self.create_directories()
@@ -1678,9 +1914,19 @@ class health_assessment:
         ds_list_index = self.compute_indexes(ds_list)
 
         # computes the change magnitude
-        self.logger.info('Computing change magnitude.')
-        if self.chain == 'SVC07B':
-            ndmi_pre, nbr_pre, msi_pre, ndmi_post, nbr_post, msi_post, ndmi_mid, nbr_mid, msi_mid = ds_list_index
+        self.logger.info("Computing change magnitude.")
+        if self.chain == "SVC07B":
+            (
+                ndmi_pre,
+                nbr_pre,
+                msi_pre,
+                ndmi_post,
+                nbr_post,
+                msi_post,
+                ndmi_mid,
+                nbr_mid,
+                msi_mid,
+            ) = ds_list_index
             magnitude = calculate_magnitude_trio(
                 ndmi_pre,
                 nbr_pre,
@@ -1690,26 +1936,81 @@ class health_assessment:
                 msi_mid,
                 ndmi_post,
                 nbr_post,
-                msi_post
+                msi_post,
             )
             # classifies the change magnitude
-            self.logger.info('Classifying the change magnitude.')
-            change = compute_change(magnitude, self.th, self.fn_path, self.change_filename, self.change_filename_cog,
-                                    self.stac_epsg, self.epsg, self.save_classification, self.clip_geometry,
-                                    self.overwrite, self.mmu)
+            self.logger.info("Classifying the change magnitude.")
+            change = compute_change(
+                magnitude,
+                self.th,
+                self.fn_path,
+                self.change_filename,
+                self.change_filename_cog,
+                self.stac_epsg,
+                self.epsg,
+                self.save_classification,
+                self.clip_geometry,
+                self.overwrite,
+                self.mmu,
+            )
         else:
             ndmi_pre, nbr_pre, msi_pre, ndmi_post, nbr_post, msi_post = ds_list_index
-            magnitude = calculate_magnitude(ndmi_pre, nbr_pre, msi_pre, ndmi_post, nbr_post, msi_post)
+            magnitude = calculate_magnitude(
+                ndmi_pre, nbr_pre, msi_pre, ndmi_post, nbr_post, msi_post
+            )
 
             # classifies the change magnitude
-            self.logger.info('Classifying the change magnitude.')
-            classes = compute_classification(magnitude, self.fn_path, self.classes_filename, self.classes_filename_cog,
-                                             self.stac_epsg, self.epsg, self.save_classification, self.clip_geometry,
-                                             self.overwrite)
+            self.logger.info("Classifying the change magnitude.")
+            classes = compute_classification(
+                magnitude,
+                self.fn_path,
+                self.classes_filename,
+                self.classes_filename_cog,
+                self.stac_epsg,
+                self.epsg,
+                self.save_classification,
+                self.clip_geometry,
+                self.overwrite,
+            )
 
             # computes the vulnerability map
-            self.logger.info('Computing the vulnerability map.')
-            if (self.chain in ['SVC07C', 'SVC10C']) and (self.assessment_kind == 'yearly'):
-                compute_vulnerability(classes, self.ft_path, self.ft_cod_path, self.vulnerability_filename,
-                                      self.vulnerability_filename_cog, self.epsg, self.save_classification,
-                                      self.clip_geometry, self.overwrite)
+            self.logger.info("Computing the vulnerability map.")
+            if (self.chain in ["SVC07C", "SVC10C"]) and (
+                self.assessment_kind == "yearly"
+            ):
+                compute_vulnerability(
+                    classes,
+                    self.ft_path,
+                    self.ft_cod_path,
+                    self.vulnerability_filename,
+                    self.vulnerability_filename_cog,
+                    self.epsg,
+                    self.save_classification,
+                    self.clip_geometry,
+                    self.overwrite,
+                )
+
+
+def get_config(config_file: str = "config.ini"):
+    config = configparser.ConfigParser()
+    path_current_directory = os.path.dirname(__file__)
+    path_config_file = os.path.join(path_current_directory, config_file)
+    config.read(path_config_file)
+
+    config_dict = dict(config["COMMON"])
+
+    chain = config_dict["chain"]
+    assessment_kind = config_dict["assessment_kind"]
+    aoi = config_dict["aoi"]
+
+    assert chain in ["SVC10C", "SVC07B", "SVC07C"], chain
+    assert aoi in ["AOI1", "AOI2", "AOI3"], aoi
+    if chain in ["SVC07B", "SVC07C"]:
+        assert assessment_kind == "yearly", assessment_kind
+    elif chain == "SVC10C":
+        assert assessment_kind in ["weekly", "yearly"], assessment_kind
+
+    for k, v in dict(config[chain + "_" + assessment_kind]).items():
+        config_dict[k] = v
+
+    return config_dict

@@ -12,6 +12,7 @@ cloudpickle
 coverage
 dask
 decorator
+distributed
 fiona
 flake8
 fsspec
